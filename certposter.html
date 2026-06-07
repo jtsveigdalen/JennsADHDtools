@@ -271,7 +271,7 @@
     <div class="WRAP">
       <header>
         <div class="TITLEBLOCK">
-          <h1>Jenn's Cert Matrix</h1>
+          <h1>Certification Matrix 4U</h1>
           <p>
             Uncheck to narrow. Empty group = no filter (shows all).<br />
             Prefix 🌈colors: AZ/DP (Blue), PL (Orange), GH (Goldish),
@@ -464,7 +464,7 @@
       const GET_PREFIX = (CODE) => (CODE.split("-")[0] || "").toUpperCase();
 
       const IS_PREFIX_ALLOWED = (CODE, ALLOWED_GROUPS) => {
-        /* Empty group = no restriction — allow everything */
+        /* Empty = no restriction — all prefixes pass */
         if (!ALLOWED_GROUPS.length) return true;
         const PREFIX = GET_PREFIX(CODE);
         for (const GROUP_KEY of ALLOWED_GROUPS) {
@@ -587,9 +587,15 @@
         const ALLOWED_PREFIX_GROUPS = GET_CHECKED_VALUES("PREFIX");
         const QUERY                = Q_EL.value || "";
 
-        /* Empty = all — fall back to full key list, not a hardcoded subset */
+        /* Empty group = no filter on that dimension (show all in that axis).
+           UNCHECK_ALL sets a flag to force a clear board instead. */
         const SAFE_TRACKS = TRACK_KEYS.length ? TRACK_KEYS : Object.keys(TRACK_LABELS);
         const SAFE_LEVELS = LEVEL_KEYS.length ? LEVEL_KEYS : Object.keys(LEVEL_LABELS);
+        if (APPLY_ALL._clearBoard) {
+          APPLY_ALL._clearBoard = false;
+          MATRIX_HOST.innerHTML = "";
+          return;
+        }
 
         /* DEBUG BANNER — uncomment inner block to diagnose filter state
         (function() {
@@ -639,6 +645,7 @@
 
       document.getElementById("UNCHECK_ALL").addEventListener("click", () => {
         FILTERS_EL.querySelectorAll('input[type="checkbox"]').forEach((CB) => (CB.checked = false));
+        APPLY_ALL._clearBoard = true;
         APPLY_ALL();
       });
 
