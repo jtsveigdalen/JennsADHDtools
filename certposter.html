@@ -154,6 +154,38 @@
       .BTN.PRIMARY { border-color: rgba(0, 0, 0, 0.16); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06); }
 
       /* ============================================================
+         ## 🌈🦄 RAINBOW PENDING INDICATOR
+         Wraps the Go/Resize pill in a racing pride-gradient border
+         when filters have changed but not yet been applied.
+         ============================================================ */
+      @keyframes RAINBOW_SPIN {
+        0%   { background-position: 0% 50%;   }
+        100% { background-position: 200% 50%; }
+      }
+      .BTN.PRIMARY.PENDING {
+        position: relative;
+        border-color: transparent;
+        color: #111;
+        background: #fff;
+        z-index: 0;
+      }
+      .BTN.PRIMARY.PENDING::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 999px;
+        z-index: -1;
+        background: linear-gradient(
+          90deg,
+          #ff0000, #ff7a00, #ffd700,
+          #00c846, #00aaff, #7c3aed,
+          #e040fb, #ff0000
+        );
+        background-size: 200% 100%;
+        animation: RAINBOW_SPIN 1.4s linear infinite;
+      }
+
+      /* ============================================================
          ## 🧱 BOARD + MATRIX
          ============================================================ */
       .BOARD {
@@ -629,7 +661,20 @@
       /* ============================================================
          ## 🎧 EVENT LISTENERS
          ============================================================ */
-      GO_BTN.addEventListener("click", APPLY_ALL);
+      /* ============================================================
+         ## 🌈🦄 PENDING STATE — ATTACH CHANGE LISTENERS
+         Any checkbox or search keystroke lights up the Go button.
+         Clicking Go clears the pending state.
+         ============================================================ */
+      const MARK_PENDING = () => GO_BTN.classList.add("PENDING");
+      const CLEAR_PENDING = () => GO_BTN.classList.remove("PENDING");
+
+      FILTERS_EL.querySelectorAll('input[type="checkbox"]').forEach(
+        (CB) => CB.addEventListener("change", MARK_PENDING)
+      );
+      Q_EL.addEventListener("input", MARK_PENDING);
+
+      GO_BTN.addEventListener("click", () => { CLEAR_PENDING(); APPLY_ALL(); });
       RESET_BTN.addEventListener("click", RESET_ALL);
       BTN_DARKER.addEventListener("click", TOGGLE_THEME);
 
