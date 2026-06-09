@@ -29,7 +29,8 @@
         --C_SC:       #7a4bd1; /* SC       => PURPLE   */
         --C_POWER:    #ff7a1a; /* PL       => ORANGE   */
         --C_GITHUB:   #d6a400; /* GH       => GOLD     */
-        --C_MS:       #1a8f4e; /* MS/MB/MD => GREEN    */
+        --C_MS:       #1a8f4e; /* MS/MD    => GREEN    */
+        --C_DYNAMICS: #0891b2; /* MB       => TEAL     */
         --C_BUSINESS: #111111; /* MS BUS   => BLACK    */
         --C_NEUTRAL:  #111111; /* FALLBACK             */
       }
@@ -303,8 +304,8 @@
       .PREFIX.sc                   { color: var(--C_SC);     }
       .PREFIX.pl                   { color: var(--C_POWER);  }
       .PREFIX.gh                   { color: var(--C_GITHUB); }
-      .PREFIX.ms, .PREFIX.mb,
-      .PREFIX.md                   { color: var(--C_MS);     }
+      .PREFIX.ms, .PREFIX.md       { color: var(--C_MS);       }
+      .PREFIX.mb                   { color: var(--C_DYNAMICS); }
 
       /* footer bar */
       .BAR          { height: 12px; background: var(--C_NEUTRAL); }
@@ -314,6 +315,7 @@
       .BAR.power    { background: var(--C_POWER);    }
       .BAR.github   { background: var(--C_GITHUB);   }
       .BAR.ms       { background: var(--C_MS);       }
+      .BAR.dynamics { background: var(--C_DYNAMICS); }
       .BAR.business { background: var(--C_BUSINESS); }
 
       @media (max-width: 860px) {
@@ -330,7 +332,7 @@
           <p>
             Uncheck to narrow. Empty group = no filter (shows all).<br />
             Prefix 🌈colors: AZ/DP (Blue), PL (Orange), GH (Goldish),
-            AI/AB (Magenta), SC (Purple), MS/MB/MD (Green).
+            AI/AB (Magenta), SC (Purple), MS/MD (Green), MB Dynamics (Teal).
           </p>
         </div>
 
@@ -358,7 +360,8 @@
             <label class="CHIP"><input type="checkbox" name="PREFIX" value="AI"     checked /> AI/AB (Magenta)</label>
             <label class="CHIP"><input type="checkbox" name="PREFIX" value="SC"     checked /> SC (Purple)</label>
             <label class="CHIP"><input type="checkbox" name="PREFIX" value="GITHUB" checked /> GH (Goldish)</label>
-            <label class="CHIP"><input type="checkbox" name="PREFIX" value="MS"     checked /> MS/MB/MD (Green)</label>
+            <label class="CHIP"><input type="checkbox" name="PREFIX" value="MS"       checked /> MS/MD (Green)</label>
+            <label class="CHIP"><input type="checkbox" name="PREFIX" value="DYNAMICS" checked /> MB Dynamics (Teal)</label>
           </div>
 
           <div class="GROUP" aria-label="Actions">
@@ -405,7 +408,8 @@
         AI:     ["AI", "AB"],
         SC:     ["SC"],
         GITHUB: ["GH"],
-        MS:     ["MS", "MB", "MD"],   /* MB- and MD- both render green */
+        MS:      ["MS", "MD"],          /* MS/MD => green               */
+        DYNAMICS:["MB"],                 /* MB    => teal (Dynamics 365) */
       };
 
       /* ============================================================
@@ -549,7 +553,8 @@
         if (P === "pl")                          return "power";
         if (P === "gh")                          return "github";
         if (P === "az" || P === "dp")            return "azure";
-        if (P === "ms" || P === "mb" || P === "md") return "ms";
+        if (P === "ms" || P === "md") return "ms";
+        if (P === "mb")              return "dynamics";
         return "";
       };
 
