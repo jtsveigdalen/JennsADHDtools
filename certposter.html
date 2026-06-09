@@ -154,6 +154,29 @@
       .BTN.PRIMARY { border-color: rgba(0, 0, 0, 0.16); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06); }
 
       /* ============================================================
+         ## ⚰️ RETIRED EXAM STYLING
+         Struck-through title, muted bar, retired badge.
+         ============================================================ */
+      .CARD.RETIRED .TITLE { text-decoration: line-through; opacity: 0.55; }
+      .CARD.RETIRED .BAR   { background: repeating-linear-gradient(
+        45deg, #ccc 0px, #ccc 4px, #e8e8e8 4px, #e8e8e8 8px
+      ); }
+      .RETIRED-BADGE {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 1px 6px;
+        border-radius: 999px;
+        background: rgba(180,0,0,0.08);
+        color: #a00;
+        border: 1px solid rgba(180,0,0,0.25);
+        font-family: ui-monospace, monospace;
+        white-space: nowrap;
+      }
+
+      /* ============================================================
          ## 🌈🦄 RAINBOW PENDING INDICATOR
          Wraps the Go/Resize pill in a racing pride-gradient border
          when filters have changed but not yet been applied.
@@ -303,7 +326,7 @@
     <div class="WRAP">
       <header>
         <div class="TITLEBLOCK">
-          <h1>Certification Matrix 4U</h1>
+          <h1>Jenn's colorful cert matrix which is less annoying than the poster</h1>
           <p>
             Uncheck to narrow. Empty group = no filter (shows all).<br />
             Prefix 🌈colors: AZ/DP (Blue), PL (Orange), GH (Goldish),
@@ -391,71 +414,84 @@
       const EXAMS = [
 
         /* ── FUNDAMENTALS ─────────────────────────────────────────── */
-        { CODE:"AZ-900", TITLE:"Azure Fundamentals",                                         TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["azure"] },
-        { CODE:"AI-900", TITLE:"Azure AI Fundamentals",                                      TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["ai","azure"] },
-        { CODE:"DP-900", TITLE:"Azure Data Fundamentals",                                    TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["data","azure"] },
-        { CODE:"PL-900", TITLE:"Power Platform Fundamentals",                                TRACK:"AI_BUSINESS", LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["power platform"] },
-        { CODE:"MS-900", TITLE:"Microsoft 365 Fundamentals",                                 TRACK:"AI_BUSINESS", LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["m365"] },
-        { CODE:"SC-900", TITLE:"Security, Compliance, and Identity Fundamentals",            TRACK:"SECURITY",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["security"] },
-        { CODE:"AB-900", TITLE:"Microsoft 365 Copilot & Agent Administration Fundamentals", TRACK:"AI_BUSINESS", LEVEL:"FUNDAMENTALS", FAMILY:"MS AI",   TAGS:["copilot","agents"] },
+        { CODE:"AZ-900", TITLE:"Azure Fundamentals",                                          TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["azure"] },
+        { CODE:"AI-901", TITLE:"Azure AI Fundamentals",                                       TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["ai","azure"] },
+        { CODE:"AI-900", TITLE:"Azure AI Fundamentals",                                       TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["ai","azure"],     RETIRED:"Retiring end of June 2026 — replaced by AI-901" },
+        { CODE:"DP-900", TITLE:"Azure Data Fundamentals",                                     TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["data","azure"] },
+        { CODE:"PL-900", TITLE:"Power Platform Fundamentals",                                 TRACK:"AI_BUSINESS", LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["power platform"] },
+        { CODE:"MS-900", TITLE:"Microsoft 365 Fundamentals",                                  TRACK:"AI_BUSINESS", LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["m365"],           RETIRED:"No longer on June 2026 poster" },
+        { CODE:"SC-900", TITLE:"Security, Compliance, and Identity Fundamentals",             TRACK:"SECURITY",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["security"] },
+        { CODE:"AB-900", TITLE:"Microsoft 365 Copilot & Agent Administration Fundamentals",  TRACK:"AI_BUSINESS", LEVEL:"FUNDAMENTALS", FAMILY:"MS AI",   TAGS:["copilot","agents"] },
 
         /* ── ROLE-BASED — CLOUD & AI ──────────────────────────────── */
-        { CODE:"AZ-104", TITLE:"Azure Administrator Associate",                              TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["azure"] },
-        { CODE:"AZ-204", TITLE:"Azure Developer Associate",                                  TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["azure","dev"] },
-        { CODE:"AZ-305", TITLE:"Azure Solutions Architect Expert",                           TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["azure","architecture"] },
-        { CODE:"AZ-400", TITLE:"DevOps Engineer Expert",                                     TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["devops"] },
-        { CODE:"AZ-700", TITLE:"Azure Network Engineer Associate",                           TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["network"] },
-        { CODE:"AZ-800", TITLE:"Windows Server Hybrid Administrator Associate",              TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["hybrid","server"] },
-        { CODE:"AZ-801", TITLE:"Windows Server Hybrid Administrator Associate (Exam 2)",     TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["hybrid","server"] },
-        { CODE:"DP-100", TITLE:"Azure Data Scientist Associate",                             TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["data","ml"] },
-        { CODE:"DP-300", TITLE:"Azure Database Administrator Associate",                     TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["database"] },
-        { CODE:"DP-600", TITLE:"Fabric Analytics Engineer Associate",                        TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["fabric","analytics"] },
-        { CODE:"DP-700", TITLE:"Fabric Data Engineer Associate",                             TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["fabric","data engineering"] },
-        { CODE:"AI-102", TITLE:"Azure AI Engineer Associate",                                TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["ai","azure"] },
+        { CODE:"AZ-104", TITLE:"Azure Administrator Associate",                               TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["azure"] },
+        { CODE:"AZ-204", TITLE:"Azure Developer Associate",                                   TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["azure","dev"] },
+        { CODE:"AZ-305", TITLE:"Azure Solutions Architect Expert",                            TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["azure","architecture"] },
+        { CODE:"AZ-400", TITLE:"DevOps Engineer Expert",                                      TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["devops"] },
+        { CODE:"AZ-700", TITLE:"Azure Network Engineer Associate",                            TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["network"] },
+        { CODE:"AZ-800", TITLE:"Windows Server Hybrid Administrator Associate",               TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["hybrid","server"] },
+        { CODE:"AZ-801", TITLE:"Windows Server Hybrid Administrator Associate (Exam 2)",      TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["hybrid","server"] },
+        { CODE:"AI-102", TITLE:"Azure AI Engineer Associate",                                 TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["ai","azure"] },
+        { CODE:"AI-103", TITLE:"Azure AI Apps and Agents Developer Associate",                TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["ai","agents"],          BETA:true },
+        { CODE:"AI-200", TITLE:"Azure AI Cloud Developer Associate",                          TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["ai","dev"],             BETA:true },
+        { CODE:"AI-300", TITLE:"Machine Learning Operations Engineer Associate",              TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["ml","mlops"] },
+        { CODE:"DP-100", TITLE:"Azure Data Scientist Associate",                              TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["data","ml"],            RETIRED:"No longer on June 2026 poster" },
+        { CODE:"DP-300", TITLE:"Azure Database Administrator Associate",                      TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["database"] },
+        { CODE:"DP-600", TITLE:"Fabric Analytics Engineer Associate",                         TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["fabric","analytics"] },
+        { CODE:"DP-700", TITLE:"Fabric Data Engineer Associate",                              TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["fabric","data engineering"] },
+        { CODE:"DP-750", TITLE:"Azure Databricks Data Engineer Associate",                    TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["databricks","data engineering"] },
+        { CODE:"DP-800", TITLE:"SQL AI Developer Associate",                                  TRACK:"CLOUD_AI", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["sql","ai"] },
 
         /* ── ROLE-BASED — AI BUSINESS ─────────────────────────────── */
-        { CODE:"PL-200", TITLE:"Power Platform Functional Consultant Associate",             TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["power platform"] },
-        { CODE:"PL-300", TITLE:"Power BI Data Analyst Associate",                            TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["power bi"] },
-        { CODE:"PL-400", TITLE:"Power Platform Developer Associate",                         TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["power platform","dev"] },
-        { CODE:"PL-500", TITLE:"Power Automate RPA Developer Associate",                     TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["rpa"] },
-        { CODE:"PL-600", TITLE:"Power Platform Solution Architect Expert",                   TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["architecture"] },
-        { CODE:"MB-230", TITLE:"Dynamics 365 Customer Service Functional Consultant Associate",           TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics"] },
-        { CODE:"MB-240", TITLE:"Dynamics 365 Field Service Functional Consultant Associate",              TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics"] },
-        { CODE:"MB-280", TITLE:"Dynamics 365 Customer Experience Analyst Associate",                      TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","customer"] },
-        { CODE:"MB-300", TITLE:"Dynamics 365: Finance & Operations Apps (Core)",                          TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","finance & ops"] },
-        { CODE:"MB-310", TITLE:"Dynamics 365 Finance Functional Consultant Associate",                    TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","finance"] },
-        { CODE:"MB-330", TITLE:"Dynamics 365 Supply Chain Management Functional Consultant Associate",    TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","supply chain"] },
-        { CODE:"MB-335", TITLE:"Dynamics 365 Supply Chain Management Functional Consultant Expert",       TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","expert"] },
-        { CODE:"MB-500", TITLE:"Dynamics 365: Finance & Operations Apps Developer Associate",             TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","dev"] },
-        { CODE:"MB-700", TITLE:"Dynamics 365: Finance & Operations Apps Solution Architect Expert",       TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","architecture"] },
-        { CODE:"MB-800", TITLE:"Dynamics 365 Business Central Functional Consultant Associate",           TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["business central"] },
-        { CODE:"MB-820", TITLE:"Dynamics 365 Business Central Developer Associate",                       TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["business central","dev"] },
-        { CODE:"MS-700", TITLE:"Teams Administrator Associate",                              TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["teams"] },
-        { CODE:"MS-721", TITLE:"Collaboration Communications Systems Engineer Associate",    TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["voice","teams"] },
-        { CODE:"MS-102", TITLE:"Microsoft 365 Administrator Expert",                         TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["m365","admin"] },
-        { CODE:"MD-102", TITLE:"Endpoint Administrator Associate",                           TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["intune","endpoint"] },
-        { CODE:"AB-100", TITLE:"Agentic AI Business Solutions Architect",                    TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS AI",   TAGS:["agentic","architecture"] },
+        { CODE:"PL-200", TITLE:"Power Platform Functional Consultant Associate",              TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["power platform"] },
+        { CODE:"PL-300", TITLE:"Power BI Data Analyst Associate",                             TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["power bi"] },
+        { CODE:"PL-400", TITLE:"Power Platform Developer Associate",                          TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["power platform","dev"] },
+        { CODE:"PL-500", TITLE:"Power Automate RPA Developer Associate",                      TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["rpa"] },
+        { CODE:"PL-600", TITLE:"Power Platform Solution Architect Expert",                    TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["architecture"] },
+        { CODE:"MB-230", TITLE:"Dynamics 365 Customer Service Functional Consultant Associate",            TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics"] },
+        { CODE:"MB-240", TITLE:"Dynamics 365 Field Service Functional Consultant Associate",               TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics"] },
+        { CODE:"MB-280", TITLE:"Dynamics 365 Customer Experience Analyst Associate",                       TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","customer"] },
+        { CODE:"MB-300", TITLE:"Dynamics 365: Finance & Operations Apps (Core)",                           TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","finance & ops"] },
+        { CODE:"MB-310", TITLE:"Dynamics 365 Finance Functional Consultant Associate",                     TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","finance"] },
+        { CODE:"MB-330", TITLE:"Dynamics 365 Supply Chain Management Functional Consultant Associate",     TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","supply chain"] },
+        { CODE:"MB-335", TITLE:"Dynamics 365 Supply Chain Management Functional Consultant Expert",        TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","expert"] },
+        { CODE:"MB-500", TITLE:"Dynamics 365: Finance & Operations Apps Developer Associate",              TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","dev"] },
+        { CODE:"MB-700", TITLE:"Dynamics 365: Finance & Operations Apps Solution Architect Expert",        TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["dynamics","architecture"] },
+        { CODE:"MB-800", TITLE:"Dynamics 365 Business Central Functional Consultant Associate",            TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["business central"] },
+        { CODE:"MB-820", TITLE:"Dynamics 365 Business Central Developer Associate",                        TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["business central","dev"] },
+        { CODE:"MS-700", TITLE:"Teams Administrator Associate",                               TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["teams"] },
+        { CODE:"MS-721", TITLE:"Collaboration Communications Systems Engineer Associate",     TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["voice","teams"] },
+        { CODE:"MS-102", TITLE:"Microsoft 365 Administrator Expert",                          TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["m365","admin"] },
+        { CODE:"MD-102", TITLE:"Endpoint Administrator Associate",                            TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["intune","endpoint"] },
+        { CODE:"AB-100", TITLE:"Agentic AI Business Solutions Architect",                     TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS AI",   TAGS:["agentic","architecture"] },
+        { CODE:"AB-210", TITLE:"Dynamics 365 Sales AI Consultant Associate",                  TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS AI",   TAGS:["dynamics","sales"],    BETA:true },
+        { CODE:"AB-250", TITLE:"Dynamics 365 Contact Center AI Engineer Associate",           TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS AI",   TAGS:["dynamics","contact center"], BETA:true },
+        { CODE:"AB-410", TITLE:"Intelligent Applications Builder Associate",                  TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS AI",   TAGS:["ai","apps"],           BETA:true },
+        { CODE:"AB-620", TITLE:"AI Agent Builder Associate",                                  TRACK:"AI_BUSINESS", LEVEL:"ROLE_BASED", FAMILY:"MS AI",   TAGS:["agentic","agents"],    BETA:true },
 
         /* ── ROLE-BASED — SECURITY ────────────────────────────────── */
-        { CODE:"AZ-500", TITLE:"Azure Security Engineer Associate",                          TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["azure","security"] },
-        { CODE:"SC-200", TITLE:"Security Operations Analyst Associate",                      TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["soc","sentinel"] },
-        { CODE:"SC-300", TITLE:"Identity and Access Administrator Associate",                TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["entra","iam"] },
-        { CODE:"SC-401", TITLE:"Information Security Administrator Associate",               TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["purview","compliance"] },
-        { CODE:"SC-100", TITLE:"Cybersecurity Architect Expert",                             TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["architecture"] },
+        { CODE:"AZ-500", TITLE:"Azure Security Engineer Associate",                           TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["azure","security"] },
+        { CODE:"SC-200", TITLE:"Security Operations Analyst Associate",                       TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["soc","sentinel"] },
+        { CODE:"SC-300", TITLE:"Identity and Access Administrator Associate",                 TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["entra","iam"] },
+        { CODE:"SC-401", TITLE:"Information Security Administrator Associate",                TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["purview","compliance"] },
+        { CODE:"SC-100", TITLE:"Cybersecurity Architect Expert",                              TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["architecture"] },
+        { CODE:"SC-500", TITLE:"Cloud and AI Security Engineer Associate",                    TRACK:"SECURITY", LEVEL:"ROLE_BASED", FAMILY:"MS TECH", TAGS:["cloud","ai security"],  BETA:true },
 
         /* ── SPECIALTY ────────────────────────────────────────────── */
-        { CODE:"AZ-120", TITLE:"Azure for SAP Workloads Specialty",                         TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"MS TECH", TAGS:["sap"] },
-        { CODE:"AZ-140", TITLE:"Azure Virtual Desktop Specialty",                            TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"MS TECH", TAGS:["avd"] },
-        { CODE:"DP-420", TITLE:"Azure Cosmos DB Developer Specialty",                        TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"MS TECH", TAGS:["cosmos db"] },
-        { CODE:"GH-100", TITLE:"GitHub Administration",                                      TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"GITHUB",  TAGS:["github"] },
-        { CODE:"GH-200", TITLE:"GitHub Actions",                                             TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"GITHUB",  TAGS:["github","ci/cd"] },
-        { CODE:"GH-300", TITLE:"GitHub Copilot",                                             TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"GITHUB",  TAGS:["copilot"] },
-        { CODE:"GH-500", TITLE:"GitHub Advanced Security",                                   TRACK:"SECURITY", LEVEL:"SPECIALTY", FAMILY:"GITHUB",  TAGS:["code scanning","secrets"] },
+        { CODE:"AZ-120", TITLE:"Azure for SAP Workloads Specialty",                          TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"MS TECH", TAGS:["sap"] },
+        { CODE:"AZ-140", TITLE:"Azure Virtual Desktop Specialty",                             TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"MS TECH", TAGS:["avd"] },
+        { CODE:"DP-420", TITLE:"Azure Cosmos DB Developer Specialty",                         TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"MS TECH", TAGS:["cosmos db"] },
+        { CODE:"GH-100", TITLE:"GitHub Administration",                                       TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"GITHUB",  TAGS:["github"] },
+        { CODE:"GH-200", TITLE:"GitHub Actions",                                              TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"GITHUB",  TAGS:["github","ci/cd"] },
+        { CODE:"GH-300", TITLE:"GitHub Copilot",                                              TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"GITHUB",  TAGS:["copilot"] },
+        { CODE:"GH-500", TITLE:"GitHub Advanced Security",                                    TRACK:"SECURITY", LEVEL:"SPECIALTY", FAMILY:"GITHUB",  TAGS:["code scanning","secrets"] },
+        { CODE:"GH-600", TITLE:"GitHub Agentic AI Developer",                                 TRACK:"CLOUD_AI", LEVEL:"SPECIALTY", FAMILY:"GITHUB",  TAGS:["agentic","github"],     BETA:true },
 
         /* ── BUSINESS ─────────────────────────────────────────────── */
-        { CODE:"GH-900", TITLE:"GitHub Foundations",                                         TRACK:"CLOUD_AI",    LEVEL:"BUSINESS", FAMILY:"GITHUB", TAGS:["foundations"] },
-        { CODE:"AB-730", TITLE:"AI Business Professional",                                   TRACK:"AI_BUSINESS", LEVEL:"BUSINESS", FAMILY:"MS AI",  TAGS:["ai","business"] },
-        { CODE:"AB-731", TITLE:"AI Transformation Leader",                                   TRACK:"AI_BUSINESS", LEVEL:"BUSINESS", FAMILY:"MS AI",  TAGS:["ai","strategy"] },
+        { CODE:"GH-900", TITLE:"GitHub Foundations",                                          TRACK:"CLOUD_AI",    LEVEL:"BUSINESS", FAMILY:"GITHUB", TAGS:["foundations"] },
+        { CODE:"AB-730", TITLE:"AI Business Professional",                                    TRACK:"AI_BUSINESS", LEVEL:"BUSINESS", FAMILY:"MS AI",  TAGS:["ai","business"] },
+        { CODE:"AB-731", TITLE:"AI Transformation Leader",                                    TRACK:"AI_BUSINESS", LEVEL:"BUSINESS", FAMILY:"MS AI",  TAGS:["ai","strategy"] },
+        { CODE:"SC-730", TITLE:"Cybersecurity Business Professional",                         TRACK:"SECURITY",    LEVEL:"BUSINESS", FAMILY:"MS TECH", TAGS:["security","business"],  BETA:true },
 
       ];
 
@@ -585,19 +621,28 @@
           const TARGET = CELL_MAP.get(`${EXAM.LEVEL}|${EXAM.TRACK}`);
           if (!TARGET) continue;
 
-          const BAR_CLASS  = BAR_CLASS_FOR_EXAM(EXAM);
+          const BAR_CLASS   = BAR_CLASS_FOR_EXAM(EXAM);
+          const IS_RETIRED  = !!EXAM.RETIRED;
+          const IS_BETA     = !!EXAM.BETA;
+          const CARD_CLASS  = IS_RETIRED ? "CARD RETIRED" : "CARD";
           const FAMILY_PILL = `<span class="PILL">${ESC(EXAM.FAMILY || "")}</span>`;
           const TAG_PILLS   = (EXAM.TAGS || []).slice(0, 2)
             .map((T) => `<span class="PILL">${ESC(T)}</span>`).join("");
+          const STATUS_BADGE = IS_RETIRED
+            ? `<span class="RETIRED-BADGE" title="${ESC(EXAM.RETIRED)}">⚰ RETIRED</span>`
+            : IS_BETA
+            ? `<span class="RETIRED-BADGE" style="background:rgba(43,108,255,0.08);color:#2b6cff;border-color:rgba(43,108,255,0.25);" title="Beta exam — subject to change">β BETA</span>`
+            : "";
 
           TARGET.insertAdjacentHTML("beforeend", `
-            <article class="CARD">
+            <article class="${CARD_CLASS}">
               <div class="BODY">
                 <h3 class="TITLE">${ESC(EXAM.TITLE || EXAM.CODE)}</h3>
                 <div class="META">
                   ${CODE_PILL_HTML(EXAM.CODE)}
                   ${FAMILY_PILL}
                   ${TAG_PILLS}
+                  ${STATUS_BADGE}
                 </div>
               </div>
               <div class="BAR ${BAR_CLASS}"></div>
