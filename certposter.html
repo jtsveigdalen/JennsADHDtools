@@ -341,7 +341,7 @@
         <div class="TITLEBLOCK">
           <h1>Jenn's colorful cert matrix which is less annoying than the poster</h1>
           <p>
-            Narrow Net = only the overlap. Wide Net = everything caught by any checked category.<br />
+            Narrow Net = only the overlap. Wide Net = everything caught by any checked track or color.<br />
             Empty group = no filter unless ✗ NONE is used.<br />
             Prefix 🌈colors: AZ/DP (Blue), PL (Orange), GH (Goldish),
             AI/AB (Magenta), SC (Purple), MS/MD (Green), MB Dynamics (Teal).
@@ -376,31 +376,12 @@
             <label class="CHIP"><input type="checkbox" name="PREFIX" value="DYNAMICS" checked /> MB Dynamics (Teal)</label>
           </div>
 
-
-           <!-- ============================================================
-           ## 🎣 FILTER MODE
-           Narrow Net keeps the original behavior: everything must overlap.
-           Wide Net catches everything selected by track OR color.
-           This matters because AZ/DP blue lives mostly in Cloud & AI,
-           while AI Business Solutions is a different matrix column.
-          Kinda unsure if this will work as I think it will. Cross fingers? 
-           ============================================================ -->
           <div class="GROUP" aria-label="Filter mode">
-            <label>Mode</label>
-
-            <label class="CHIP">
-              <input type="radio" name="MODE" value="NARROW" checked />
-              Narrow Net
-            </label>
-
-            <label class="CHIP">
-              <input type="radio" name="MODE" value="WIDE" />
-              Wide Net
-            </label>
+            <label>Net</label>
+            <label class="CHIP"><input type="radio" name="MODE" value="NARROW_NET" checked /> Narrow Net</label>
+            <label class="CHIP"><input type="radio" name="MODE" value="WIDE_NET" /> Wide Net</label>
           </div>
 
-
-          
           <div class="GROUP" aria-label="Actions">
             <div class="SEARCH" role="search">
               <span aria-hidden="true">🔎</span>
@@ -457,7 +438,7 @@
         /* ── FUNDAMENTALS ─────────────────────────────────────────── */
         { CODE:"AZ-900", TITLE:"Azure Fundamentals",                                          TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["azure"] },
         { CODE:"AI-901", TITLE:"Azure AI Fundamentals",                                       TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["ai","azure"] },
-        { CODE:"AI-900", TITLE:"Azure AI Fundamentals",                                       TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["ai","azure"],     RETIRED:"Retiring end of June 2026 — replaced by AI-901" },
+        { CODE:"AI-900", TITLE:"Azure AI Fundamentals",                                       TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["ai","azure"],     RETRIED:"Retiring end of June 2026 — replaced by AI-901" },
         { CODE:"DP-900", TITLE:"Azure Data Fundamentals",                                     TRACK:"CLOUD_AI",    LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["data","azure"] },
         { CODE:"PL-900", TITLE:"Power Platform Fundamentals",                                 TRACK:"AI_BUSINESS", LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["power platform"] },
         { CODE:"MS-900", TITLE:"Microsoft 365 Fundamentals",                                  TRACK:"AI_BUSINESS", LEVEL:"FUNDAMENTALS", FAMILY:"MS TECH", TAGS:["m365"],           RETIRED:"No longer on June 2026 poster" },
@@ -570,22 +551,8 @@
       const GET_CHECKED_VALUES = (NAME) =>
         [...FILTERS_EL.querySelectorAll(`input[name="${NAME}"]:checked`)].map((X) => X.value);
 
-            /* ============================================================
-         ## 🎣 FILTER MODE HELPER
-         The poster now has two intentionally different ways to think(And I hope this wroks as I planned it to):
-         
-         NARROW NET[Default]:
-         "Only show me cards that match ALL selected filter groups." This is the classic Venn diagram / intersection behavior.
-         Useful when you want to ask: "What selected colors exist inside this selected track?"
-
-         WIDE NET:
-         "Show me everything caught by ANY selected track or selected color."This is the study-planning / idea-gathering behavior.
-         Useful when you want to ask: "Show me AI Business Solutions, plus blue AZ/DP, plus magenta AI/AB."
-         
-         Defaulting to NARROW preserves the original behavior unless the user actively chooses to cast a wider net.
-         ============================================================ */
       const GET_SELECTED_MODE = () =>
-        FILTERS_EL.querySelector('input[name="MODE"]:checked')?.value || "NARROW";
+        FILTERS_EL.querySelector('input[name="MODE"]:checked')?.value || "NARROW_NET";
 
       const GET_PREFIX = (CODE) => (CODE.split("-")[0] || "").toUpperCase();
 
@@ -623,13 +590,86 @@
         String(S || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
       /* ============================================================
+         ## 🕸️ NET LOGIC / WHY THIS IS NOT JUST A VENN DIAGRAM
+         ============================================================
+
+         The poster has multiple classification systems stacked on top
+         of each other:
+
+         - TRACK is where Microsoft placed the exam on the poster.
+           Example: Cloud & AI Platforms, AI Business Solutions, Security.
+
+         - PREFIX / COLOR is the exam-code family.
+           Example: AZ/DP blue, PL orange, AI/AB magenta.
+
+         These are not the same thing. AZ/DP blue cards mostly live in
+         the Cloud & AI Platforms track, while AB magenta cards mostly
+         live in the AI Business Solutions track.
+
+         This gives us two useful modes:
+
+         NARROW NET:
+           Classic filter behavior. A card must match the selected track
+           AND selected color/prefix AND selected level. This is useful
+           when asking: "What is inside this exact overlap?"
+
+         WIDE NET:
+           Casting a wide net. A card is included if it matches any
+           selected track OR any selected color/prefix, while still
+           respecting level and search. This is useful when asking:
+           "Show me all the things I care about, wherever they live."
+
+         Practical example:
+           AI Business Solutions + AZ/DP blue
+
+           - NARROW NET looks for blue cards inside AI Business Solutions.
+             There may be none.
+
+           - WIDE NET shows all AI Business Solutions cards PLUS all
+             AZ/DP blue cards, even when those blue cards live in Cloud
+             & AI Platforms.
+
+         Tiny matrix goblin warning:
+           In WIDE NET, selected colors can pull cards from tracks that
+           were not checked. Therefore APPLY_ALL must build columns from
+           the visible cards, not only from the checked track boxes.
+         ============================================================ */
+      const EXAM_MATCHES_FILTERS = (EXAM, TRACK_KEYS, LEVEL_KEYS, PREFIX_KEYS, QUERY, MODE) => {
+        const Q = (QUERY || "").trim().toLowerCase();
+
+        const MATCHES_LEVEL =
+          !LEVEL_KEYS.length || LEVEL_KEYS.includes(EXAM.LEVEL);
+
+        const MATCHES_TRACK =
+          TRACK_KEYS.length && TRACK_KEYS.includes(EXAM.TRACK);
+
+        const MATCHES_PREFIX =
+          PREFIX_KEYS.length && IS_PREFIX_ALLOWED(EXAM.CODE, PREFIX_KEYS);
+
+        const MATCHES_SEARCH = !Q || [EXAM.CODE, EXAM.TITLE, (EXAM.TAGS || []).join(" "), EXAM.FAMILY]
+          .join(" ")
+          .toLowerCase()
+          .includes(Q);
+
+        if (!MATCHES_LEVEL || !MATCHES_SEARCH) return false;
+
+        if (MODE === "WIDE_NET") {
+          if (!TRACK_KEYS.length && !PREFIX_KEYS.length) return true;
+          return MATCHES_TRACK || MATCHES_PREFIX;
+        }
+
+        return (
+          (!TRACK_KEYS.length || MATCHES_TRACK) &&
+          (!PREFIX_KEYS.length || MATCHES_PREFIX)
+        );
+      };
+
+      /* ============================================================
          ## 🧱 MATRIX BUILD
          FIX: cellMap is built from the in-memory element BEFORE it
          touches the DOM, eliminating the querySelectorAll race.
          ============================================================ */
-      const BUILD_AND_POPULATE = (TRACK_KEYS, LEVEL_KEYS, ALLOWED_PREFIX_GROUPS, QUERY) => {
-
-        const Q = (QUERY || "").trim().toLowerCase();
+      const BUILD_AND_POPULATE = (TRACK_KEYS, LEVEL_KEYS, VISIBLE_EXAMS) => {
 
         /* 1. Build grid element in memory */
         const MATRIX_EL = document.createElement("div");
@@ -668,15 +708,7 @@
         }
 
         /* 3. Populate cards into in-memory containers */
-        for (const EXAM of EXAMS) {
-          if (TRACK_KEYS.length && !TRACK_KEYS.includes(EXAM.TRACK)) continue;
-          if (LEVEL_KEYS.length && !LEVEL_KEYS.includes(EXAM.LEVEL)) continue;
-          if (!IS_PREFIX_ALLOWED(EXAM.CODE, ALLOWED_PREFIX_GROUPS))  continue;
-          if (Q) {
-            const HAY = [EXAM.CODE, EXAM.TITLE, (EXAM.TAGS || []).join(" "), EXAM.FAMILY]
-              .join(" ").toLowerCase();
-            if (!HAY.includes(Q)) continue;
-          }
+        for (const EXAM of VISIBLE_EXAMS) {
           const TARGET = CELL_MAP.get(`${EXAM.LEVEL}|${EXAM.TRACK}`);
           if (!TARGET) continue;
 
@@ -722,16 +754,55 @@
         const LEVEL_KEYS           = GET_CHECKED_VALUES("LEVEL");
         const ALLOWED_PREFIX_GROUPS = GET_CHECKED_VALUES("PREFIX");
         const QUERY                = Q_EL.value || "";
+        const MODE                 = GET_SELECTED_MODE();
 
         /* Empty group = no filter on that dimension (show all in that axis).
            UNCHECK_ALL sets a flag to force a clear board instead. */
-        const SAFE_TRACKS = TRACK_KEYS.length ? TRACK_KEYS : Object.keys(TRACK_LABELS);
         const SAFE_LEVELS = LEVEL_KEYS.length ? LEVEL_KEYS : Object.keys(LEVEL_LABELS);
         if (APPLY_ALL._clearBoard) {
           APPLY_ALL._clearBoard = false;
           MATRIX_HOST.innerHTML = "";
           return;
         }
+
+        /* ============================================================
+           ## 🕸️ CAST THE SELECTED NET
+           NARROW NET and WIDE NET both create a concrete VISIBLE_EXAMS
+           list first. The grid is then built from that list.
+
+           This avoids the old problem where a blue AZ/DP card could
+           match the user's intent, but still have nowhere to render
+           because its Cloud & AI Platforms column was not built.
+           ============================================================ */
+        const VISIBLE_EXAMS = EXAMS.filter((EXAM) =>
+          EXAM_MATCHES_FILTERS(
+            EXAM,
+            TRACK_KEYS,
+            LEVEL_KEYS,
+            ALLOWED_PREFIX_GROUPS,
+            QUERY,
+            MODE
+          )
+        );
+
+        /* ============================================================
+           ## 🧱 CHOOSE WHICH COLUMNS EXIST
+           NARROW NET:
+             Columns come from the selected track checkboxes. Empty
+             track selection still means "no track restriction."
+
+           WIDE NET:
+             Columns come from the visible cards themselves, because
+             selected colors may pull cards from tracks that were not
+             checked. This is the "cast a wide net" behavior.
+           ============================================================ */
+        const SAFE_TRACKS = MODE === "WIDE_NET"
+          ? Object.keys(TRACK_LABELS).filter((TRACK) =>
+              VISIBLE_EXAMS.some((EXAM) => EXAM.TRACK === TRACK)
+            )
+          : TRACK_KEYS.length
+          ? TRACK_KEYS
+          : Object.keys(TRACK_LABELS);
 
         /* DEBUG BANNER — uncomment inner block to diagnose filter state
         (function() {
@@ -746,19 +817,34 @@
           DBG.textContent = "TRACKS: ["  + (TRACK_KEYS.join(", ")            || "none") + "]\n"
                           + "LEVELS: ["  + (LEVEL_KEYS.join(", ")            || "none") + "]\n"
                           + "PREFIX: ["  + (ALLOWED_PREFIX_GROUPS.join(", ") || "none") + "]\n"
+                          + "MODE: "      + MODE + "\n"
                           + 'SEARCH: "' + QUERY + '"';
         })();
         */
 
-        BUILD_AND_POPULATE(SAFE_TRACKS, SAFE_LEVELS, ALLOWED_PREFIX_GROUPS, QUERY);
+        BUILD_AND_POPULATE(SAFE_TRACKS, SAFE_LEVELS, VISIBLE_EXAMS);
       };
 
       /* ============================================================
          ## ↺ RESET
+         Reset returns to the original conservative behavior:
+
+         - every checkbox checked
+         - search cleared
+         - Narrow Net selected
+
+         Why Narrow Net?
+         Because it is the safer "classic filter" behavior and makes
+         RESET feel like returning to the original poster logic.
          ============================================================ */
       const RESET_ALL = () => {
         FILTERS_EL.querySelectorAll('input[type="checkbox"]').forEach((CB) => (CB.checked = true));
+
+        const NARROW_MODE = FILTERS_EL.querySelector('input[name="MODE"][value="NARROW_NET"]');
+        if (NARROW_MODE) NARROW_MODE.checked = true;
+
         Q_EL.value = "";
+        CLEAR_PENDING();
         APPLY_ALL();
       };
 
@@ -773,8 +859,18 @@
       const MARK_PENDING = () => GO_BTN.classList.add("PENDING");
       const CLEAR_PENDING = () => GO_BTN.classList.remove("PENDING");
 
-      FILTERS_EL.querySelectorAll('input[type="checkbox"]').forEach(
-        (CB) => CB.addEventListener("change", MARK_PENDING)
+      /* ============================================================
+         ## 🌈🦄 PENDING STATE — CHECKBOXES + RADIO BUTTONS
+         Mode changes matter as much as checkbox changes.
+
+         If the user switches from Narrow Net to Wide Net, the board
+         should not silently stay stale. The Go/Resize button gets the
+         animated pending border so the user knows:
+
+         "The filter goblin has new instructions. Click Go/Resize."
+         ============================================================ */
+      FILTERS_EL.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(
+        (CONTROL) => CONTROL.addEventListener("change", MARK_PENDING)
       );
       Q_EL.addEventListener("input", MARK_PENDING);
 
