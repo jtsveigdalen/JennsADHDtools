@@ -341,7 +341,8 @@
         <div class="TITLEBLOCK">
           <h1>Jenn's colorful cert matrix which is less annoying than the poster</h1>
           <p>
-            Uncheck to narrow. Empty group = no filter (shows all).<br />
+            Narrow Net = only the overlap. Wide Net = everything caught by any checked category.<br />
+            Empty group = no filter unless ✗ NONE is used.<br />
             Prefix 🌈colors: AZ/DP (Blue), PL (Orange), GH (Goldish),
             AI/AB (Magenta), SC (Purple), MS/MD (Green), MB Dynamics (Teal).
           </p>
@@ -375,6 +376,31 @@
             <label class="CHIP"><input type="checkbox" name="PREFIX" value="DYNAMICS" checked /> MB Dynamics (Teal)</label>
           </div>
 
+
+           <!-- ============================================================
+           ## 🎣 FILTER MODE
+           Narrow Net keeps the original behavior: everything must overlap.
+           Wide Net catches everything selected by track OR color.
+           This matters because AZ/DP blue lives mostly in Cloud & AI,
+           while AI Business Solutions is a different matrix column.
+          Kinda unsure if this will work as I think it will. Cross fingers? 
+           ============================================================ -->
+          <div class="GROUP" aria-label="Filter mode">
+            <label>Mode</label>
+
+            <label class="CHIP">
+              <input type="radio" name="MODE" value="NARROW" checked />
+              Narrow Net
+            </label>
+
+            <label class="CHIP">
+              <input type="radio" name="MODE" value="WIDE" />
+              Wide Net
+            </label>
+          </div>
+
+
+          
           <div class="GROUP" aria-label="Actions">
             <div class="SEARCH" role="search">
               <span aria-hidden="true">🔎</span>
@@ -543,6 +569,23 @@
          ============================================================ */
       const GET_CHECKED_VALUES = (NAME) =>
         [...FILTERS_EL.querySelectorAll(`input[name="${NAME}"]:checked`)].map((X) => X.value);
+
+            /* ============================================================
+         ## 🎣 FILTER MODE HELPER
+         The poster now has two intentionally different ways to think(And I hope this wroks as I planned it to):
+         
+         NARROW NET[Default]:
+         "Only show me cards that match ALL selected filter groups." This is the classic Venn diagram / intersection behavior.
+         Useful when you want to ask: "What selected colors exist inside this selected track?"
+
+         WIDE NET:
+         "Show me everything caught by ANY selected track or selected color."This is the study-planning / idea-gathering behavior.
+         Useful when you want to ask: "Show me AI Business Solutions, plus blue AZ/DP, plus magenta AI/AB."
+         
+         Defaulting to NARROW preserves the original behavior unless the user actively chooses to cast a wider net.
+         ============================================================ */
+      const GET_SELECTED_MODE = () =>
+        FILTERS_EL.querySelector('input[name="MODE"]:checked')?.value || "NARROW";
 
       const GET_PREFIX = (CODE) => (CODE.split("-")[0] || "").toUpperCase();
 
