@@ -318,6 +318,17 @@
       .BAR.dynamics { background: var(--C_DYNAMICS); }
       .BAR.business { background: var(--C_BUSINESS); }
 
+      /* ============================================================
+         ## 🩹 BAR-TO-BOTTOM FIX
+         Cards are grid items (align-self: stretch), so a short card
+         in a taller row gets stretched and the slack lands BELOW the
+         bar, floating it upward. Make the card a flex column and let
+         BODY soak up the extra height, pinning BAR to the bottom edge
+         on every card regardless of title length or row height.
+         ============================================================ */
+      .CARD       { display: flex; flex-direction: column; }
+      .CARD .BODY { flex: 1 1 auto; }
+
       @media (max-width: 860px) {
         .ROWHEAD span { writing-mode: horizontal-tb; transform: none; font-size: 13px; }
         .COLHEAD      { justify-content: flex-start; padding-left: 12px; }
