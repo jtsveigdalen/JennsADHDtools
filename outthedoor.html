@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Ready Reckoner</title>
+
+    <style>
+        :root {
+            --sopra-red: #DB1D2B;
+            --sopra-red-dark: #B61622;
+            --sopra-orange: #F47216;
+            --sopra-black: #231F20;
+
+            --page-background: #F4F4F4;
+            --card-background: #FFFFFF;
+            --soft-background: #F9F7F6;
+            --input-background: #FFFFFF;
+
+            --text-primary: #231F20;
+            --text-secondary: #5D5658;
+            --border: #D8D3D4;
+
+            --offload-background: #FFF2E8;
+            --offload-border: #F47216;
+
+            --non-offload-background: #FCECEE;
+            --non-offload-border: #DB1D2B;
+
+            --success-background: #F3F7F4;
+            --success-border: #66846D;
+
+            --shadow:
+                0 18px 45px rgba(35, 31, 32, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(219, 29, 43, 0.08),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    315deg,
+                    rgba(244, 114, 22, 0.09),
+                    transparent 35%
+                ),
+                var(--page-background);
+
+            color: var(--text-primary);
+
+            font-family:
+                "Andika",
+                "Segoe UI",
+                Arial,
+                sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .top-stripe {
+            height: 8px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--sopra-red) 0%,
+                    var(--sopra-red) 65%,
+                    var(--sopra-orange) 65%,
+                    var(--sopra-orange) 100%
+                );
+        }
+
+        .page {
+            width: min(980px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 42px 0 60px;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+
+            color: var(--sopra-red);
+
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+
+            color: var(--sopra-black);
+
+            font-size: clamp(2rem, 6vw, 3.8rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
+        .subtitle {
+            max-width: 680px;
+            margin: 16px auto 0;
+
+            color: var(--text-secondary);
+
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .main-card {
+            overflow: hidden;
+
+            background: var(--card-background);
+            border: 1px solid rgba(35, 31, 32, 0.08);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .arrival-section {
+            display: grid;
+            grid-template-columns: 1fr minmax(160px, 220px);
+            gap: 24px;
+            align-items: center;
+
+            padding: 28px;
+
+            background:
+                linear-gradient(
+                    120deg,
+                    var(--sopra-black),
+                    #3B3436
+                );
+
+            color: #FFFFFF;
+        }
+
+        .arrival-section h2 {
+            margin: 0 0 6px;
+
+            font-size: 1.35rem;
+        }
+
+        .arrival-section p {
+            margin: 0;
+
+            color: rgba(255, 255, 255, 0.75);
+
+            line-height: 1.5;
+        }
+
+        .arrival-control {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .arrival-control label {
+            color: rgba(255, 255, 255, 0.8);
+
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .arrival-control input {
+            width: 100%;
+            min-height: 58px;
+            padding: 10px 14px;
+
+            background: #FFFFFF;
+            border: 3px solid var(--sopra-orange);
+            border-radius: 12px;
+            color: var(--sopra-black);
+
+            font-size: 1.45rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+
+            margin-bottom: 26px;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+
+            padding: 8px 12px;
+
+            border-radius: 999px;
+
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
+        .legend-item.non-offload {
+            background: var(--non-offload-background);
+            border: 1px solid var(--non-offload-border);
+            color: var(--sopra-red-dark);
+        }
+
+        .legend-item.offload {
+            background: var(--offload-background);
+            border: 1px solid var(--offload-border);
+            color: #A34708;
+        }
+
+        .task-sections {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            align-items: start;
+        }
+
+        .task-section {
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 18px;
+        }
+
+        .task-section-header {
+            padding: 18px 20px;
+        }
+
+        .task-section-header h2 {
+            margin: 0;
+
+            font-size: 1.18rem;
+        }
+
+        .task-section-header p {
+            margin: 5px 0 0;
+
+            color: var(--text-secondary);
+
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+
+        .task-section.non-offload .task-section-header {
+            background: var(--non-offload-background);
+            border-bottom: 3px solid var(--non-offload-border);
+        }
+
+        .task-section.offload .task-section-header {
+            background: var(--offload-background);
+            border-bottom: 3px solid var(--offload-border);
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+
+            padding: 8px 18px 18px;
+        }
+
+        .task-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 108px;
+            gap: 18px;
+            align-items: center;
+
+            min-height: 76px;
+            padding: 13px 2px;
+
+            border-bottom: 1px solid #E8E4E5;
+        }
+
+        .task-row:last-child {
+            border-bottom: 0;
+        }
+
+        .task-label {
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+
+            min-width: 0;
+        }
+
+        .task-symbol {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+
+            width: 28px;
+            height: 28px;
+
+            border-radius: 50%;
+
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .non-offload .task-symbol {
+            background: var(--sopra-red);
+            color: #FFFFFF;
+        }
+
+        .offload .task-symbol {
+            background: var(--sopra-orange);
+            color: #FFFFFF;
+        }
+
+        .task-name {
+            padding-top: 3px;
+
+            font-weight: 700;
+            line-height: 1.35;
+        }
+
+        .minutes-control {
+            position: relative;
+
+            width: 108px;
+        }
+
+        .minutes-control input {
+            width: 100%;
+            min-height: 46px;
+            padding: 8px 39px 8px 10px;
+
+            background: var(--input-background);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+
+            font-weight: 700;
+            text-align: right;
+
+            transition:
+                border-color 160ms ease,
+                box-shadow 160ms ease;
+        }
+
+        .minutes-control input:focus {
+            border-color: var(--sopra-orange);
+            box-shadow:
+                0 0 0 4px rgba(244, 114, 22, 0.16);
+            outline: none;
+        }
+
+        .minutes-control span {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+
+            color: var(--text-secondary);
+
+            font-size: 0.7rem;
+            font-weight: 700;
+            pointer-events: none;
+            transform: translateY(-50%);
+        }
+
+        .button-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+
+            margin-top: 26px;
+        }
+
+        .button {
+            min-height: 48px;
+            padding: 11px 22px;
+
+            border: 0;
+            border-radius: 999px;
+
+            cursor: pointer;
+
+            font-weight: 700;
+
+            transition:
+                background-color 160ms ease,
+                color 160ms ease,
+                transform 160ms ease,
+                box-shadow 160ms ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button-primary {
+            flex: 1 1 230px;
+
+            background: var(--sopra-red);
+            box-shadow:
+                0 8px 18px rgba(219, 29, 43, 0.22);
+            color: #FFFFFF;
+        }
+
+        .button-primary:hover {
+            background: var(--sopra-red-dark);
+        }
+
+        .button-secondary {
+            flex: 0 1 auto;
+
+            background: #FFFFFF;
+            border: 2px solid var(--sopra-black);
+            color: var(--sopra-black);
+        }
+
+        .button-secondary:hover {
+            background: var(--sopra-black);
+            color: #FFFFFF;
+        }
+
+        .results {
+            margin-top: 28px;
+            padding-top: 28px;
+
+            border-top: 1px solid var(--border);
+        }
+
+        .results-heading {
+            margin: 0 0 16px;
+
+            font-size: 1.25rem;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .result-card {
+            min-height: 156px;
+            padding: 20px;
+
+            border-radius: 16px;
+        }
+
+        .result-card.full {
+            background:
+                linear-gradient(
+                    145deg,
+                    var(--sopra-red),
+                    #B61622
+                );
+
+            color: #FFFFFF;
+        }
+
+        .result-card.offloaded {
+            background:
+                linear-gradient(
+                    145deg,
+                    var(--sopra-orange),
+                    #D85D08
+                );
+
+            color: #FFFFFF;
+        }
+
+        .result-card h3 {
+            margin: 0;
+
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .result-time {
+            margin: 10px 0 4px;
+
+            font-size: clamp(2.2rem, 7vw, 3.4rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
+        .result-description {
+            margin: 8px 0 0;
+
+            color: rgba(255, 255, 255, 0.82);
+
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+
+            margin-top: 16px;
+        }
+
+        .summary-item {
+            padding: 16px;
+
+            background: var(--soft-background);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .summary-label {
+            display: block;
+
+            color: var(--text-secondary);
+
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .summary-value {
+            display: block;
+            margin-top: 5px;
+
+            color: var(--sopra-black);
+
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+
+        .status {
+            min-height: 24px;
+            margin: 18px 0 0;
+
+            color: var(--text-secondary);
+
+            font-size: 0.88rem;
+            text-align: center;
+        }
+
+        .status.error {
+            color: var(--sopra-red);
+            font-weight: 700;
+        }
+
+        footer {
+            padding: 24px 12px 0;
+
+            color: var(--text-secondary);
+
+            font-size: 0.78rem;
+            text-align: center;
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                width: min(100% - 20px, 680px);
+                padding-top: 24px;
+            }
+
+            .arrival-section {
+                grid-template-columns: 1fr;
+            }
+
+            .task-sections {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .task-row {
+                grid-template-columns: minmax(0, 1fr) 94px;
+                gap: 10px;
+            }
+
+            .minutes-control {
+                width: 94px;
+            }
+
+            .button-secondary {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-stripe"></div>
+
+    <main class="page">
+        <header class="hero">
+            <p class="eyebrow">The world is how we time it</p>
+
+            <h1>Ready Reckoner</h1>
+
+            <p class="subtitle">
+                Enter when you need to arrive and how many minutes each task
+                takes. The reckoner works backwards to calculate exactly when
+                getting-ready mode must begin.
+            </p>
+        </header>
+
+        <section class="main-card">
+            <div class="arrival-section">
+                <div>
+                    <h2>When must you arrive?</h2>
+
+                    <p>
+                        The default arrival time is 09:10. Change it whenever
+                        today has different ideas.
+                    </p>
+                </div>
+
+                <div class="arrival-control">
+                    <label for="arrivalTime">
+                        Arrival time
+                    </label>
+
+                    <input
+                        type="time"
+                        id="arrivalTime"
+                        value="09:10"
+                    >
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="legend">
+                    <div class="legend-item non-offload">
+                        <span>−</span>
+                        Non-offload: you must do it
+                    </div>
+
+                    <div class="legend-item offload">
+                        <span>★</span>
+                        Offload: can be done beforehand
+                    </div>
+                </div>
+
+                <div class="task-sections">
+                    <section class="task-section non-offload">
+                        <div class="task-section-header">
+                            <h2>Non-offload tasks</h2>
+
+                            <p>
+                                These remain part of the morning preparation
+                                even when everything possible has been offloaded.
+                            </p>
+                        </div>
+
+                        <div class="task-list">
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="wakeUpTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Wake up and braindead time
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="wakeUpTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="dressTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Dress time
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="dressTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="hairMakeupTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Hair and makeup
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="hairMakeupTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="eatTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Eat
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="eatTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="medsTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Vitamins and meds
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="medsTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="shutdownHouseTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Shutdown house
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="shutdownHouseTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="outsideClothesTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Get outside clothes on
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="outsideClothesTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="shovelTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Potentially shovel
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="shovelTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="clearCarTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Potentially clear car
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="clearCarTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="carWarmupTime"
+                                >
+                                    <span class="task-symbol">−</span>
+
+                                    <span class="task-name">
+                                        Car warmup
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="carWarmupTime"
+                                        class="task-input non-offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="task-section offload">
+                        <div class="task-section-header">
+                            <h2>Offload tasks</h2>
+
+                            <p>
+                                Prepare these beforehand to move the morning
+                                start time forward.
+                            </p>
+                        </div>
+
+                        <div class="task-list">
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="findOutfitTime"
+                                >
+                                    <span class="task-symbol">★</span>
+
+                                    <span class="task-name">
+                                        Find outfit
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="findOutfitTime"
+                                        class="task-input offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="makeLunchTime"
+                                >
+                                    <span class="task-symbol">★</span>
+
+                                    <span class="task-name">
+                                        Make lunch
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="makeLunchTime"
+                                        class="task-input offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+
+                            <div class="task-row">
+                                <label
+                                    class="task-label"
+                                    for="packBagsTime"
+                                >
+                                    <span class="task-symbol">★</span>
+
+                                    <span class="task-name">
+                                        Pack bags
+                                    </span>
+                                </label>
+
+                                <div class="minutes-control">
+                                    <input
+                                        type="number"
+                                        id="packBagsTime"
+                                        class="task-input offload-input"
+                                        value="0"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                    <span>min</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="button-bar">
+                    <button
+                        type="button"
+                        class="button button-primary"
+                        id="calculateButton"
+                    >
+                        Calculate start times
+                    </button>
+
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        id="resetButton"
+                    >
+                        Reset minutes
+                    </button>
+                </div>
+
+                <section
+                    class="results"
+                    aria-live="polite"
+                >
+                    <h2 class="results-heading">
+                        Your morning launch window
+                    </h2>
+
+                    <div class="result-grid">
+                        <article class="result-card full">
+                            <h3>Doing everything this morning</h3>
+
+                            <div
+                                class="result-time"
+                                id="fullStartTime"
+                            >
+                                09:10
+                            </div>
+
+                            <p class="result-description">
+                                Begin here when none of the starred tasks have
+                                been prepared beforehand.
+                            </p>
+                        </article>
+
+                        <article class="result-card offloaded">
+                            <h3>With offload tasks completed</h3>
+
+                            <div
+                                class="result-time"
+                                id="offloadedStartTime"
+                            >
+                                09:10
+                            </div>
+
+                            <p class="result-description">
+                                Begin here when the outfit, lunch and bags are
+                                already sorted.
+                            </p>
+                        </article>
+                    </div>
+
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-label">
+                                All tasks
+                            </span>
+
+                            <span
+                                class="summary-value"
+                                id="totalTimeDisplay"
+                            >
+                                0 minutes
+                            </span>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="summary-label">
+                                Non-offload
+                            </span>
+
+                            <span
+                                class="summary-value"
+                                id="nonOffloadDisplay"
+                            >
+                                0 minutes
+                            </span>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="summary-label">
+                                Offload savings
+                            </span>
+
+                            <span
+                                class="summary-value"
+                                id="offloadDisplay"
+                            >
+                                0 minutes
+                            </span>
+                        </div>
+                    </div>
+
+                    <p
+                        class="status"
+                        id="statusMessage"
+                    >
+                        Times recalculate automatically.
+                    </p>
+                </section>
+            </div>
+        </section>
+
+        <footer>
+            Ready Reckoner · Because mornings require architecture too.
+        </footer>
+    </main>
+
+    <script>
+        "use strict";
+
+        const arrivalTimeInput =
+            document.getElementById("arrivalTime");
+
+        const taskInputs =
+            document.querySelectorAll(".task-input");
+
+        const nonOffloadInputs =
+            document.querySelectorAll(".non-offload-input");
+
+        const offloadInputs =
+            document.querySelectorAll(".offload-input");
+
+        const calculateButton =
+            document.getElementById("calculateButton");
+
+        const resetButton =
+            document.getElementById("resetButton");
+
+        const fullStartTimeDisplay =
+            document.getElementById("fullStartTime");
+
+        const offloadedStartTimeDisplay =
+            document.getElementById("offloadedStartTime");
+
+        const totalTimeDisplay =
+            document.getElementById("totalTimeDisplay");
+
+        const nonOffloadDisplay =
+            document.getElementById("nonOffloadDisplay");
+
+        const offloadDisplay =
+            document.getElementById("offloadDisplay");
+
+        const statusMessage =
+            document.getElementById("statusMessage");
+
+        function getInputMinutes(input) {
+            const parsedValue = Number.parseFloat(input.value);
+
+            if (
+                Number.isNaN(parsedValue) ||
+                parsedValue < 0
+            ) {
+                return 0;
+            }
+
+            return parsedValue;
+        }
+
+        function sumInputs(inputCollection) {
+            return Array
+                .from(inputCollection)
+                .reduce(
+                    function (total, input) {
+                        return total + getInputMinutes(input);
+                    },
+                    0
+                );
+        }
+
+        function parseTimeToMinutes(timeValue) {
+            if (
+                typeof timeValue !== "string" ||
+                !timeValue.includes(":")
+            ) {
+                return null;
+            }
+
+            const timeParts = timeValue.split(":");
+
+            const hours =
+                Number.parseInt(timeParts[0], 10);
+
+            const minutes =
+                Number.parseInt(timeParts[1], 10);
+
+            if (
+                Number.isNaN(hours) ||
+                Number.isNaN(minutes)
+            ) {
+                return null;
+            }
+
+            return (hours * 60) + minutes;
+        }
+
+        function formatClockTime(totalMinutes) {
+            const minutesInDay = 24 * 60;
+
+            const normalizedMinutes =
+                (
+                    (Math.round(totalMinutes) % minutesInDay) +
+                    minutesInDay
+                ) % minutesInDay;
+
+            const hours =
+                Math.floor(normalizedMinutes / 60);
+
+            const minutes =
+                normalizedMinutes % 60;
+
+            return (
+                String(hours).padStart(2, "0") +
+                ":" +
+                String(minutes).padStart(2, "0")
+            );
+        }
+
+        function formatDuration(totalMinutes) {
+            const roundedMinutes =
+                Math.round(totalMinutes);
+
+            const hours =
+                Math.floor(roundedMinutes / 60);
+
+            const minutes =
+                roundedMinutes % 60;
+
+            if (hours === 0) {
+                return (
+                    roundedMinutes +
+                    (
+                        roundedMinutes === 1
+                            ? " minute"
+                            : " minutes"
+                    )
+                );
+            }
+
+            if (minutes === 0) {
+                return (
+                    hours +
+                    (
+                        hours === 1
+                            ? " hour"
+                            : " hours"
+                    )
+                );
+            }
+
+            return (
+                hours +
+                (
+                    hours === 1
+                        ? " hour "
+                        : " hours "
+                ) +
+                minutes +
+                (
+                    minutes === 1
+                        ? " minute"
+                        : " minutes"
+                )
+            );
+        }
+
+        function calculateTimes() {
+            const arrivalMinutes =
+                parseTimeToMinutes(arrivalTimeInput.value);
+
+            if (arrivalMinutes === null) {
+                statusMessage.textContent =
+                    "Please enter a valid arrival time.";
+
+                statusMessage.classList.add("error");
+
+                return;
+            }
+
+            const nonOffloadMinutes =
+                sumInputs(nonOffloadInputs);
+
+            const offloadMinutes =
+                sumInputs(offloadInputs);
+
+            const allTaskMinutes =
+                nonOffloadMinutes + offloadMinutes;
+
+            const fullStartMinutes =
+                arrivalMinutes - allTaskMinutes;
+
+            const offloadedStartMinutes =
+                arrivalMinutes - nonOffloadMinutes;
+
+            fullStartTimeDisplay.textContent =
+                formatClockTime(fullStartMinutes);
+
+            offloadedStartTimeDisplay.textContent =
+                formatClockTime(offloadedStartMinutes);
+
+            totalTimeDisplay.textContent =
+                formatDuration(allTaskMinutes);
+
+            nonOffloadDisplay.textContent =
+                formatDuration(nonOffloadMinutes);
+
+            offloadDisplay.textContent =
+                formatDuration(offloadMinutes);
+
+            statusMessage.classList.remove("error");
+
+            if (allTaskMinutes === 0) {
+                statusMessage.textContent =
+                    "Add task durations to calculate your actual start time.";
+            } else if (offloadMinutes === 0) {
+                statusMessage.textContent =
+                    "No offload time is currently entered.";
+            } else {
+                statusMessage.textContent =
+                    "Offloading saves " +
+                    formatDuration(offloadMinutes) +
+                    " from the morning routine.";
+            }
+        }
+
+        function resetMinutes() {
+            taskInputs.forEach(
+                function (input) {
+                    input.value = "0";
+                }
+            );
+
+            calculateTimes();
+        }
+
+        calculateButton.addEventListener(
+            "click",
+            calculateTimes
+        );
+
+        resetButton.addEventListener(
+            "click",
+            resetMinutes
+        );
+
+        arrivalTimeInput.addEventListener(
+            "input",
+            calculateTimes
+        );
+
+        taskInputs.forEach(
+            function (input) {
+                input.addEventListener(
+                    "input",
+                    calculateTimes
+                );
+            }
+        );
+
+        calculateTimes();
+    </script>
+</body>
+
+</html>
