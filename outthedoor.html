@@ -144,7 +144,7 @@
 
         .arrival-section {
             display: grid;
-            grid-template-columns: 1fr minmax(160px, 220px);
+            grid-template-columns: 1fr minmax(160px, 220px) minmax(160px, 220px);
             gap: 24px;
             align-items: center;
 
@@ -495,6 +495,20 @@
             color: #FFFFFF;
         }
 
+        .result-card.door {
+            grid-column: 1 / -1;
+            min-height: 0;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    var(--black),
+                    #3B3436
+                );
+
+            color: #FFFFFF;
+        }
+
         .result-card h3 {
             margin: 0;
 
@@ -631,11 +645,11 @@
 
     <main class="page">
         <header class="hero">
-            <p class="eyebrow">The world is how we time it</p>
+            <p class="eyebrow">The world is how we time it--or, you know, getting out the door on time.😒</p>
             <h1>Ready Reckoner</h1>
             <p class="subtitle">
                 Enter when you need to arrive and how many minutes each task takes. The reckoner works backwards to calculate exactly when
-                getting-ready mode must begin.
+                getting-ready mode must begin. Just a fun little exercise. 
             </p>
         </header>
 
@@ -658,6 +672,20 @@
                         type="time"
                         id="arrivalTime"
                         value="09:10"
+                    >
+                </div>
+
+                <div class="arrival-control">
+                    <label for="travelTime">
+                        Travel time (min)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="travelTime"
+                        value="40"
+                        min="0"
+                        step="1"
                     >
                 </div>
             </div>
@@ -1098,6 +1126,25 @@
                                 already sorted.
                             </p>
                         </article>
+
+                        <article class="result-card door">
+                            <h3>Out the door by</h3>
+
+                            <div
+                                class="result-time"
+                                id="doorTime"
+                            >
+                                08:30
+                            </div>
+
+                            <p
+                                class="result-description"
+                                id="doorDescription"
+                            >
+                                Leave by this time to cover 40 minutes of
+                                travel and arrive at 09:10.
+                            </p>
+                        </article>
                     </div>
 
                     <div class="summary-grid">
@@ -1152,7 +1199,7 @@
         </section>
 
         <footer>
-            Ready Reckoner · Because mornings require architecture too.
+            Ready Reckoner · Because mornings require architecture and excessive planning tools, too.
         </footer>
     </main>
 
@@ -1161,6 +1208,9 @@
 
         const arrivalTimeInput =
             document.getElementById("arrivalTime");
+
+        const travelTimeInput =
+            document.getElementById("travelTime");
 
         const taskInputs =
             document.querySelectorAll(".task-input");
@@ -1182,6 +1232,12 @@
 
         const offloadedStartTimeDisplay =
             document.getElementById("offloadedStartTime");
+
+        const doorTimeDisplay =
+            document.getElementById("doorTime");
+
+        const doorDescriptionDisplay =
+            document.getElementById("doorDescription");
 
         const totalTimeDisplay =
             document.getElementById("totalTimeDisplay");
@@ -1337,17 +1393,33 @@
             const allTaskMinutes =
                 nonOffloadMinutes + offloadMinutes;
 
+            const travelMinutes =
+                getInputMinutes(travelTimeInput);
+
+            const doorMinutes =
+                arrivalMinutes - travelMinutes;
+
             const fullStartMinutes =
-                arrivalMinutes - allTaskMinutes;
+                arrivalMinutes - travelMinutes - allTaskMinutes;
 
             const offloadedStartMinutes =
-                arrivalMinutes - nonOffloadMinutes;
+                arrivalMinutes - travelMinutes - nonOffloadMinutes;
 
             fullStartTimeDisplay.textContent =
                 formatClockTime(fullStartMinutes);
 
             offloadedStartTimeDisplay.textContent =
                 formatClockTime(offloadedStartMinutes);
+
+            doorTimeDisplay.textContent =
+                formatClockTime(doorMinutes);
+
+            doorDescriptionDisplay.textContent =
+                "Leave by this time to cover " +
+                formatDuration(travelMinutes) +
+                " of travel and arrive at " +
+                formatClockTime(arrivalMinutes) +
+                ".";
 
             totalTimeDisplay.textContent =
                 formatDuration(allTaskMinutes);
@@ -1395,6 +1467,11 @@
         );
 
         arrivalTimeInput.addEventListener(
+            "input",
+            calculateTimes
+        );
+
+        travelTimeInput.addEventListener(
             "input",
             calculateTimes
         );
