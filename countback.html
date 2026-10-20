@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<!-- ================================================================== -->
+<!-- ## 🦄 IDENTIFICATION DIVISION.                                      -->
+<!--    PROGRAM-ID.    OUT-THE-DOOR-PLANNER.                             -->
+<!--    AUTHOR.        JENN.                                             -->
+<!--    REMARKS.       COUNTS BACKWARD FROM A TARGET TIME TO THE MOMENT  -->
+<!--                   GETTING READY MUST BEGIN. DEFAULT TARGET IS TRAIN -->
+<!--                   0615, TRAVEL 40, ARRIVAL BUFFER 5, DOOR CHECK 5.  -->
+<!-- ================================================================== -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Out The Door Planner</title>
+
+<!-- ================================================================== -->
+<!-- ## 🌈 ENVIRONMENT DIVISION.                                         -->
+<!--    CONFIGURATION SECTION. EXTERNAL FONT FILES ARE REQUESTED HERE.   -->
+<!--    SOURCE-COMPUTER. ANY BROWSER. OBJECT-COMPUTER. ANY BROWSER.      -->
+<!-- ================================================================== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ================================================================== */
+/* ## 🦄 DATA DIVISION. PART 1 OF 2: PRESENTATION RECORDS.             */
+/*    LAYOUT: LEFT COLUMN = INPUTS AND STEP EDITOR.                    */
+/*            RIGHT COLUMN = LIVE COUNTDOWN AND BACKWARD TIMELINE.     */
+/*            SINGLE COLUMN UNDER 820 PIXELS. SINGLE DARK THEME.       */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* ## 🎀 WORKING-STORAGE SECTION. COLOR AND FONT CONSTANTS.            */
+/* ------------------------------------------------------------------ */
+:root {
+  --bg: #0d0f14;
+  --surface: #13161e;
+  --surface2: #191d28;
+  --border: #2a2f3f;
+  --text: #d8dce8;
+  --muted: #8a92ab;
+  --accent: #b06aff;
+  --pink: #ff6bcb;
+  --blue: #4fc3f7;
+  --green: #39d98a;
+  --warn: #ffb347;
+  --ff-display: 'Chakra Petch', 'Segoe UI', system-ui, sans-serif;
+  --ff-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --ff-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🧱 BASE-RECORD SECTION. BOX MODEL, BODY, OUTER WRAPPER.          */
+/* ------------------------------------------------------------------ */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--ff-body);
+  font-size: 14px;
+  line-height: 1.5;
+  padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+/* ------------------------------------------------------------------ */
+/* ## 🔮 HEADER-RECORD SECTION. TITLE AND LIVE CLOCK.                  */
+/* ------------------------------------------------------------------ */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 24px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+h1 { margin: 0; font-family: var(--ff-display); font-size: 1.7rem; font-weight: 700; letter-spacing: 0.02em; color: #fff; text-wrap: balance; }
+h1 span { color: var(--pink); }
+.clock { font-family: var(--ff-mono); font-size: 0.8rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.clock b { color: var(--text); font-weight: 500; }
+
+/* ------------------------------------------------------------------ */
+/* ## 🧩 GRID-RECORD SECTION. TWO COLUMNS, STACKS BELOW 820 PIXELS.    */
+/* ------------------------------------------------------------------ */
+.layout { display: grid; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 820px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* ------------------------------------------------------------------ */
+/* ## 📦 PANEL-RECORD SECTION. BOXED GROUPS WITH CAPS HEADINGS.        */
+/* ------------------------------------------------------------------ */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.panel h2 { margin: 0; font-family: var(--ff-display); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+
+/* ------------------------------------------------------------------ */
+/* ## ⌨️ INPUT-RECORD SECTION. FIELDS, LABELS, FOCUS RINGS, HINTS.     */
+/* ------------------------------------------------------------------ */
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); min-width: 0; }
+input[type="text"], input[type="number"], input[type="date"], input[type="time"] {
+  width: 100%; min-width: 0; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px;
+  padding: 8px 10px; font-family: var(--ff-mono); font-size: 0.9rem; letter-spacing: 0; text-transform: none;
+}
+input:focus-visible, button:focus-visible { outline: 2px solid var(--pink); outline-offset: 1px; }
+.row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.hint { font-size: 0.75rem; color: var(--muted); margin: 0; }
+
+/* ------------------------------------------------------------------ */
+/* ## 🔘 BUTTON-RECORD SETCION. PRESET CHIPS AND ACTION BUTTONS.       */
+/* ------------------------------------------------------------------ */
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+button { font-family: var(--ff-body); cursor: pointer; }
+.chip { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 12px; font-size: 0.8rem; font-weight: 500; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #12081f; }
+.btn { background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; font-size: 0.8rem; }
+.btn:hover { border-color: var(--pink); color: #fff; }
+
+/* ------------------------------------------------------------------ */
+/* ## 📝 STEP-TABLE SECTION. ONE ROW PER GET-READY STEP.               */
+/* ------------------------------------------------------------------ */
+.steps { display: flex; flex-direction: column; gap: 6px; }
+.step { display: grid; grid-template-columns: auto minmax(0, 1fr) 64px auto; gap: 8px; align-items: center; }
+.step input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+.step .x { background: transparent; border: 1px solid transparent; color: var(--muted); border-radius: 4px; width: 28px; height: 28px; font-size: 1rem; line-height: 1; }
+.step .x:hover { color: var(--pink); border-color: var(--border); }
+.step.off input[type="text"], .step.off input[type="number"] { opacity: 0.45; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ------------------------------------------------------------------ */
+/* ## ⏳ COUNTDOWN-RECORD SECTION. COLOR CHANGES BY PHASE.             */
+/* ------------------------------------------------------------------ */
+.count { gap: 6px; }
+.count .lbl { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.count .big { font-family: var(--ff-display); font-weight: 700; font-size: clamp(2rem, 7vw, 3.4rem); line-height: 1.1; color: #fff; font-variant-numeric: tabular-nums; }
+.count .sub { font-size: 0.85rem; color: var(--muted); }
+.count[data-state="prep"] .big { color: var(--pink); }
+.count[data-state="travel"] .big { color: var(--blue); }
+.count[data-state="late"] .big { color: var(--warn); }
+
+/* ------------------------------------------------------------------ */
+/* ## 🔑 KEY-TIMES-RECORD SECTION. START, DOOR, TARGET TILES.          */
+/* ------------------------------------------------------------------ */
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.key { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.key .k { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.key .v { font-family: var(--ff-mono); font-size: 1.35rem; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
+.key .d { font-size: 0.72rem; color: var(--muted); }
+.key.go .v { color: var(--pink); }
+.key.start .v { color: var(--accent); }
+
+/* ------------------------------------------------------------------ */
+/* ## 🛤️ TIMELINE-RECORD SECTION. DOTS, CONNECTOR LINE, ROW STATES.    */
+/* ------------------------------------------------------------------ */
+.tl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.tl li { display: grid; grid-template-columns: 96px 14px minmax(0, 1fr) auto; gap: 0 10px; align-items: start; padding: 7px 8px; border-radius: 4px; position: relative; }
+.tl .t { font-family: var(--ff-mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 1px; }
+.tl .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; background: var(--accent); justify-self: center; position: relative; z-index: 1; }
+.tl li::before { content: ""; position: absolute; left: calc(8px + 96px + 10px + 6px); top: 0; bottom: 0; width: 2px; background: var(--border); }
+.tl li:first-child::before { top: 14px; }
+.tl li:last-child::before { bottom: calc(100% - 14px); }
+.tl .n { min-width: 0; overflow-wrap: anywhere; }
+.tl .m { font-family: var(--ff-mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; padding-top: 2px; }
+.tl li[data-kind="door"] .dot { background: var(--pink); }
+.tl li[data-kind="travel"] .dot { background: var(--blue); }
+.tl li[data-kind="arrive"] .dot { background: var(--green); }
+.tl li[data-kind="mark"] .dot { background: var(--bg); border: 2px solid var(--pink); width: 12px; height: 12px; margin-top: 4px; }
+.tl li[data-kind="target"] .dot { background: var(--bg); border: 2px solid var(--green); width: 12px; height: 12px; margin-top: 4px; }
+.tl li[data-kind="mark"] .n, .tl li[data-kind="target"] .n { font-family: var(--ff-display); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.85rem; }
+.tl li[data-kind="mark"] .n { color: var(--pink); }
+.tl li[data-kind="target"] .n { color: var(--green); }
+.tl li.now { background: var(--surface2); outline: 1px solid var(--accent); }
+.tl li.past .n, .tl li.past .t, .tl li.past .m { opacity: 0.5; }
+
+/* ------------------------------------------------------------------ */
+/* ## 📱 NARROW-SCREEN-OVERRIDE SECTION. TIMELINE TIGHTENS BELOW 460.  */
+/* ------------------------------------------------------------------ */
+@media (max-width: 460px) {
+  .tl li { grid-template-columns: 78px 14px minmax(0, 1fr); }
+  .tl li::before { left: calc(8px + 78px + 10px + 6px); }
+  .tl .m { grid-column: 3; padding-top: 0; }
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🏷️ LEGEND-AND-NOTICE-RECORD SECTION. LEGEND, WARNING, FOOTER.    */
+/* ------------------------------------------------------------------ */
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.75rem; color: var(--muted); }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.warnbox { border: 1px solid var(--warn); color: var(--warn); border-radius: 4px; padding: 8px 12px; font-size: 0.82rem; }
+.foot { font-size: 0.72rem; color: var(--muted); font-family: var(--ff-mono); }
+
+/* ------------------------------------------------------------------ */
+/* ## 🐢 ACCESSIBILITY-CLAUSE SECTION. NO MOTION IF USER OPTS OUT.     */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ================================================================== -->
+<!-- ## 🦄 DATA DIVISION. PART 2 OF 2: SCREEN SECTION.                   -->
+<!--    THE MARKUP BELOW DEFINES EVERY SCREEN FIELD BY ID.               -->
+<!--    THE PROCEDURE DIVISION READS AND WRITES THESE FIELDS BY ID.      -->
+<!-- ================================================================== -->
+<div class="wrap">
+
+  <!-- ## 🔮 SCREEN-HEADER. TITLE AND LIVE CLOCK FIELDS. -->
+  <header class="top">
+    <h1>Out The Door <span>Planner</span></h1>
+    <div class="clock">Now <b id="nowClock">--:--:--</b> · <span id="tzName"></span></div>
+  </header>
+
+  <div class="layout">
+
+    <!-- ============================================================== -->
+    <!-- ## 📥 LEFT COLUMN. INPUT SCREEN GROUPS.                         -->
+    <!-- ============================================================== -->
+    <div class="col">
+
+      <!-- ## 🎯 TARGET-GROUP. PRESET CHIPS, EVENT NAME, DATE, TIME. -->
+      <section class="panel" aria-labelledby="h-target">
+        <h2 id="h-target">Target</h2>
+        <div class="presets" id="presets" role="group" aria-label="Presets">
+          <button type="button" class="chip" data-preset="train" aria-pressed="true">Train</button>
+          <button type="button" class="chip" data-preset="appt" aria-pressed="false">Appointment</button>
+          <button type="button" class="chip" data-preset="work" aria-pressed="false">Work</button>
+        </div>
+        <label class="f" for="inLabel">Target event
+          <input type="text" id="inLabel" value="Train departs" autocomplete="off">
+        </label>
+        <div class="row2">
+          <label class="f" for="inDate">Date <input type="date" id="inDate"></label>
+          <label class="f" for="inTime">Time <input type="time" id="inTime" value="06:15"></label>
+        </div>
+        <p class="hint">For a train, enter the departure time shown on the ticket.</p>
+      </section>
+
+      <!-- ## 🚆 TRAVEL-GROUP. TRAVEL 40, ARRIVAL BUFFER 5, DOOR CHECK 5. -->
+      <section class="panel" aria-labelledby="h-travel">
+        <h2 id="h-travel">Travel and buffers</h2>
+        <div class="row3">
+          <label class="f" for="inTravel">Travel <br>(min) <input type="number" id="inTravel" min="0" max="600" step="5" value="40"></label>
+          <label class="f" for="inArrive">Arrival buffer (min) <input type="number" id="inArrive" min="0" max="120" step="1" value="5"></label>
+          <label class="f" for="inDoor">Door check (min) <input type="number" id="inDoor" min="0" max="60" step="1" value="5"></label>
+        </div>
+        <p class="hint">Travel is door to destination. Arrival buffer is time spent at the platform or entrance before the target. Door check covers keys, phone, wallet, shoes.</p>
+      </section>
+
+      <!-- ## 📝 STEP-GROUP. TABLE IS FILLED AT RUN TIME BY RENDER-STEPS. -->
+      <section class="panel" aria-labelledby="h-steps">
+        <h2 id="h-steps">Get-ready steps</h2>
+        <div class="steps" id="steps"></div>
+        <div class="actions">
+          <button type="button" class="btn" id="addStep">Add step</button>
+          <button type="button" class="btn" id="resetAll">Reset to defaults</button>
+        </div>
+        <p class="hint">Steps run top to bottom. Untick a step to skip it today.</p>
+      </section>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- ## 📤 RIGHT COLUMN. OUTPUT SCREEN GROUPS.                       -->
+    <!-- ============================================================== -->
+    <div class="col">
+
+      <!-- ## ⏳ COUNTDOWN-GROUP. LABEL, BIG NUMBER, SUBTEXT. -->
+      <section class="panel count" id="count" data-state="wait" aria-live="off">
+        <div class="lbl" id="cLabel">Start getting ready in</div>
+        <div class="big" id="cBig">--</div>
+        <div class="sub" id="cSub"></div>
+      </section>
+
+      <!-- ## 🔑 KEY-TIMES-GROUP. START, OUT THE DOOR, TARGET. -->
+      <div class="keys">
+        <div class="key start"><span class="k">Start getting ready</span><span class="v" id="kStart">--:--</span><span class="d" id="kStartD"></span></div>
+        <div class="key go"><span class="k">Out the door by</span><span class="v" id="kGo">--:--</span><span class="d" id="kGoD"></span></div>
+        <div class="key"><span class="k" id="kTargetK">Target</span><span class="v" id="kTarget">--:--</span><span class="d" id="kTargetD"></span></div>
+      </div>
+
+      <!-- ## ⚠️ WARNING-GROUP. FILLED ONLY WHEN TIME IS SHORT. -->
+      <div id="warn"></div>
+
+      <!-- ## 🛤️ TIMELINE-GROUP. LIST IS FILLED BY RENDER-TIMELINE. -->
+      <section class="panel" aria-labelledby="h-tl">
+        <h2 id="h-tl">Timeline, counted back from target</h2>
+        <ol class="tl" id="timeline"></ol>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>Get ready</span>
+          <span><i style="background:var(--pink)"></i>Door</span>
+          <span><i style="background:var(--blue)"></i>Travel</span>
+          <span><i style="background:var(--green)"></i>Arrival</span>
+        </div>
+      </section>
+      <p class="foot">Times use this device's clock and time zone. Settings are kept in this browser only.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================== */
+/* ## 🦄 PROCEDURE DIVISION.                                           */
+/*    PARAGRAPHS RUN IN THIS ORDER: DEFINE, LOAD, COMPUTE, RENDER,     */
+/*    TICK, WIRE, BOOT. NO PARAGRAPH FALLS THROUGH TO THE NEXT.        */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* ## 🎀 1000-WORKING-STORAGE.                                         */
+/*    STORE-KEY IS BUMPED TO V2 SO OLD SAVED VALUES DO NOT OVERRIDE    */
+/*    THE NEW DEFAULTS. DEFAULT-TIME IS THE TRAIN DEPARTURE.           */
+/* ------------------------------------------------------------------ */
+var STORE_KEY = 'otdp.v2';
+var DEFAULT_TIME = '06:15';
+
+/* ## 📝 1010-DEFAULT-STEP-TABLE. SIX GET-READY STEPS, MINUTES EACH. */
+var DEFAULT_STEPS = [
+  { label: 'Wake and get up', min: 10, on: true },
+  { label: 'Shower', min: 15, on: true },
+  { label: 'Dress', min: 7, on: true },
+  { label: 'Hair and face', min: 7, on: true },
+  { label: 'Breakfast and coffee', min: 7, on: true },
+  { label: 'Pack bag and check charger', min: 7, on: true }
+];
+
+/* ## 🚆 1020-PRESET-TABLE. TRAIN 40/5/5, APPOINTMENT 20/5/5, WORK 30/5/5. */
+var PRESETS = {
+  train: { label: 'Train departs', travel: 40, arrive: 5, door: 5 },
+  appt:  { label: 'Appointment starts', travel: 20, arrive: 5, door: 5 },
+  work:  { label: 'Shift starts', travel: 30, arrive: 5, door: 5 }
+};
+
+/* ## 🎯 1030-STATE-RECORD. INITIAL VALUES ARE THE TRAIN DEFAULTS. */
+var state = {
+  preset: 'train', label: 'Train departs', time: DEFAULT_TIME, date: '',
+  travel: 40, arrive: 5, door: 5,
+  steps: DEFAULT_STEPS.map(function (s) { return { label: s.label, min: s.min, on: s.on }; })
+};
+
+/* ------------------------------------------------------------------ */
+/* ## 🔧 1100-UTILITY-PARAGRAPHS.                                      */
+/*    $ = FIND FIELD BY ID.  PAD = ZERO-FILL TO TWO DIGITS.            */
+/*    LOCALDATESTR = YYYY-MM-DD.  NUM = SAFE NON-NEGATIVE NUMBER.      */
+/* ------------------------------------------------------------------ */
+function $(id) { return document.getElementById(id); }
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function localDateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function num(v, fallback) { var n = parseFloat(v); return isFinite(n) && n >= 0 ? n : fallback; }
+
+/* ------------------------------------------------------------------ */
+/* ## 💾 2000-PERSISTENCE-SECTION.                                     */
+/*    LOAD-STATE READS THE SAVED RECORD FROM BROWSER STORAGE.          */
+/*    SAVE-STATE WRITES IT BACK. BOTH FAIL SILENTLY IF STORAGE IS      */
+/*    BLOCKED. STORAGE IS A PER-BROWSER CONVENIENCE ONLY.              */
+/* ------------------------------------------------------------------ */
+function loadState() {
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    var s = JSON.parse(raw);
+    if (s && typeof s === 'object') {
+      ['preset', 'label', 'time'].forEach(function (k) { if (typeof s[k] === 'string') state[k] = s[k]; });
+      ['travel', 'arrive', 'door'].forEach(function (k) { if (typeof s[k] === 'number') state[k] = s[k]; });
+      if (Array.isArray(s.steps) && s.steps.length) {
+        state.steps = s.steps.map(function (x) {
+          return { label: String(x.label || ''), min: num(x.min, 0), on: x.on !== false };
+        });
+      }
+    }
+  } catch (e) { /* storage unavailable, defaults stay */ }
+}
+function saveState() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      preset: state.preset, label: state.label, time: state.time,
+      travel: state.travel, arrive: state.arrive, door: state.door, steps: state.steps
+    }));
+  } catch (e) { /* ignore */ }
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 📅 2100-DEFAULT-DATE-PARAGRAPH.                                  */
+/*    IF TARGET TIME IS STILL AHEAD TODAY, USE TODAY.                  */
+/*    OTHERWISE ADD ONE DAY AND USE TOMORROW.                          */
+/* ------------------------------------------------------------------ */
+function defaultDate() {
+  var now = new Date();
+  var parts = (state.time || DEFAULT_TIME).split(':');
+  var t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), +parts[0] || 0, +parts[1] || 0, 0);
+  if (t.getTime() <= now.getTime()) t = new Date(t.getTime() + 86400000);
+  return localDateStr(t);
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🖨️ 2200-FORMAT-PARAGRAPHS.                                       */
+/*    FMTT = CLOCK TIME HH:MM, 24 HOUR.                                */
+/*    DAYTAG = TODAY, TOMORROW, OR SHORT DATE.                         */
+/*    FMTDUR = DURATION AS Xd Xh XXm XXs.                              */
+/* ------------------------------------------------------------------ */
+function fmtT(ms) {
+  return new Date(ms).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+function dayTag(ms) {
+  var d = new Date(ms), n = new Date();
+  if (localDateStr(d) === localDateStr(n)) return 'today';
+  var tm = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1);
+  if (localDateStr(d) === localDateStr(tm)) return 'tomorrow';
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function fmtDur(ms) {
+  var s = Math.max(0, Math.floor(ms / 1000));
+  var d = Math.floor(s / 86400); s -= d * 86400;
+  var h = Math.floor(s / 3600); s -= h * 3600;
+  var m = Math.floor(s / 60); s -= m * 60;
+  if (d > 0) return d + 'd ' + h + 'h ' + pad(m) + 'm';
+  if (h > 0) return h + 'h ' + pad(m) + 'm ' + pad(s) + 's';
+  return pad(m) + 'm ' + pad(s) + 's';
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🧮 3000-COMPUTE-SECTION. THE CORE LOGIC.                         */
+/*    START AT THE TARGET. SUBTRACT, IN ORDER: ARRIVAL BUFFER,         */
+/*    TRAVEL, DOOR CHECK, THEN EACH ENABLED STEP FROM LAST TO FIRST.   */
+/*    THE CURSOR AFTER TRAVEL IS THE OUT-THE-DOOR TIME.                */
+/*    THE CURSOR AFTER ALL STEPS IS THE START-GETTING-READY TIME.      */
+/*    RETURNS NULL IF DATE OR TIME IS MISSING.                         */
+/* ------------------------------------------------------------------ */
+var plan = null;
+function compute() {
+  var ds = state.date, ts = state.time;
+  if (!ds || !ts) return null;
+  var p = ds.split('-'), q = ts.split(':');
+  var target = new Date(+p[0], +p[1] - 1, +p[2], +q[0], +q[1], 0).getTime();
+  if (!isFinite(target)) return null;
+  var cursor = target, segs = [];
+
+  /* ## ➖ 3010-PUSH-PARAGRAPH. SUBTRACT MINUTES, RECORD A SEGMENT. */
+  function push(kind, label, min) {
+    if (!(min > 0)) return;
+    var end = cursor, start = end - min * 60000;
+    segs.unshift({ kind: kind, label: label, min: min, start: start, end: end });
+    cursor = start;
+  }
+
+  /* ## 🚪 3020-BACKWARD-WALK. ORDER OF SUBTRACTION IS FIXED. */
+  push('arrive', 'Arrival buffer', state.arrive);
+  push('travel', 'Travel', state.travel);
+  var leave = cursor;
+  push('door', 'Door check: keys, phone, wallet, shoes', state.door);
+  for (var i = state.steps.length - 1; i >= 0; i--) {
+    var st = state.steps[i];
+    if (st.on && st.min > 0) push('prep', st.label || 'Step', st.min);
+  }
+  return { target: target, leave: leave, start: cursor, segs: segs };
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🛤️ 4000-RENDER-TIMELINE-SECTION.                                 */
+/*    4010-LI BUILDS ONE ROW: TIME, DOT, NAME, MINUTES.                */
+/*    4020-RENDER-TIMELINE WRITES PREP ROWS, THE DOOR MARKER,          */
+/*    TRAVEL AND ARRIVAL ROWS, THEN THE TARGET ROW.                    */
+/* ------------------------------------------------------------------ */
+function li(kind, t, name, mins, start, end) {
+  var el = document.createElement('li');
+  el.dataset.kind = kind;
+  if (start != null) { el.dataset.start = start; el.dataset.end = end; }
+  var a = document.createElement('span'); a.className = 't'; a.textContent = t;
+  var b = document.createElement('span'); b.className = 'dot';
+  var c = document.createElement('span'); c.className = 'n'; c.textContent = name;
+  var d = document.createElement('span'); d.className = 'm'; d.textContent = mins;
+  el.appendChild(a); el.appendChild(b); el.appendChild(c); el.appendChild(d);
+  return el;
+}
+function renderTimeline() {
+  var tl = $('timeline');
+  tl.textContent = '';
+  if (!plan) return;
+  plan.segs.forEach(function (s) {
+    if (s.kind === 'arrive' || s.kind === 'travel') return;
+    tl.appendChild(li(s.kind, fmtT(s.start) + '–' + fmtT(s.end), s.label, s.min + ' min', s.start, s.end));
+  });
+  var mk = li('mark', fmtT(plan.leave), 'Out the door', '', plan.leave, plan.leave + 1);
+  tl.appendChild(mk);
+  plan.segs.forEach(function (s) {
+    if (s.kind !== 'travel' && s.kind !== 'arrive') return;
+    tl.appendChild(li(s.kind, fmtT(s.start) + '–' + fmtT(s.end), s.label, s.min + ' min', s.start, s.end));
+  });
+  tl.appendChild(li('target', fmtT(plan.target), state.label || 'Target', '', plan.target, plan.target + 1));
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🔑 4100-RENDER-KEY-TIMES-PARAGRAPH.                              */
+/*    MOVES START, DOOR, AND TARGET TIMES INTO THE THREE TILES.        */
+/*    CLEARS THE TILES IF THERE IS NO PLAN.                            */
+/* ------------------------------------------------------------------ */
+function renderKeys() {
+  if (!plan) {
+    $('kStart').textContent = $('kGo').textContent = $('kTarget').textContent = '--:--';
+    $('kStartD').textContent = $('kGoD').textContent = $('kTargetD').textContent = '';
+    return;
+  }
+  var prep = Math.round((plan.leave - plan.start) / 60000);
+  var total = Math.round((plan.target - plan.start) / 60000);
+  $('kStart').textContent = fmtT(plan.start);
+  $('kStartD').textContent = dayTag(plan.start) + ' · ' + prep + ' min of prep';
+  $('kGo').textContent = fmtT(plan.leave);
+  $('kGoD').textContent = dayTag(plan.leave) + ' · ' + state.travel + ' min travel';
+  $('kTargetK').textContent = state.label || 'Target';
+  $('kTarget').textContent = fmtT(plan.target);
+  $('kTargetD').textContent = dayTag(plan.target) + ' · ' + total + ' min total';
+}
+
+/* ------------------------------------------------------------------ */
+/* ## ⏱️ 5000-TICK-SECTION. RUNS EVERY SECOND.                         */
+/*    5010 UPDATE THE CLOCK.                                           */
+/*    5020 CHOOSE THE PHASE: WAIT, PREP, TRAVEL, OR LATE.              */
+/*    5030 RAISE A WARNING IF PREP HAS STARTED OR DEPARTURE HAS PASSED.*/
+/*    5040 MARK THE ACTIVE ROW AND DIM PAST ROWS.                      */
+/* ------------------------------------------------------------------ */
+function tick() {
+  var now = Date.now();
+
+  /* ## 🕰️ 5010-UPDATE-CLOCK. */
+  $('nowClock').textContent = new Date(now).toLocaleTimeString('en-GB', { hour12: false });
+  var box = $('count'), L = $('cLabel'), B = $('cBig'), S = $('cSub'), W = $('warn');
+  if (!plan) {
+    box.dataset.state = 'wait'; L.textContent = 'Set a target'; B.textContent = '--'; S.textContent = 'Enter a date and time.';
+    W.textContent = '';
+    return;
+  }
+
+  /* ## 🚦 5020-CHOOSE-PHASE. */
+  var cur = null;
+  if (now < plan.start) {
+    box.dataset.state = 'wait';
+    L.textContent = 'Start getting ready in';
+    B.textContent = fmtDur(plan.start - now);
+    S.textContent = 'Start at ' + fmtT(plan.start) + ' (' + dayTag(plan.start) + '). Out the door at ' + fmtT(plan.leave) + '.';
+  } else if (now < plan.leave) {
+    box.dataset.state = 'prep';
+    L.textContent = 'Out the door in';
+    B.textContent = fmtDur(plan.leave - now);
+    plan.segs.forEach(function (s) { if (now >= s.start && now < s.end && s.kind !== 'travel' && s.kind !== 'arrive') cur = s; });
+    S.textContent = cur ? 'Now: ' + cur.label + ' until ' + fmtT(cur.end) + '.' : 'Prep window is open.';
+  } else if (now < plan.target) {
+    box.dataset.state = 'travel';
+    L.textContent = (state.label || 'Target') + ' in';
+    B.textContent = fmtDur(plan.target - now);
+    S.textContent = 'Underway. Should have left at ' + fmtT(plan.leave) + '. 🦄';
+  } else {
+    box.dataset.state = 'late';
+    L.textContent = 'Target time passed';
+    B.textContent = '+' + fmtDur(now - plan.target);
+    S.textContent = 'Change the date or time for the next trip.';
+  }
+
+  /* ## ⚠️ 5030-RAISE-WARNING. */
+  var msg = '';
+  if (now > plan.start && now < plan.leave) {
+    var behind = Math.round((now - plan.start) / 60000);
+    if (behind > 0) msg = 'Prep window opened ' + behind + ' min ago. Remaining prep: ' + Math.max(0, Math.round((plan.leave - now) / 60000)) + ' min. Drop optional steps if needed.';
+  } else if (now >= plan.leave && now < plan.target && state.travel > 0) {
+    msg = 'Departure time has passed. Remaining before target: ' + Math.round((plan.target - now) / 60000) + ' min against ' + (state.travel + state.arrive) + ' min planned.';
+  }
+  if (msg) { W.innerHTML = ''; var d = document.createElement('div'); d.className = 'warnbox'; d.textContent = msg; W.appendChild(d); }
+  else { W.textContent = ''; }
+
+  /* ## 🔦 5040-MARK-ACTIVE-AND-PAST-ROWS. */
+  var rows = $('timeline').children;
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i], s0 = +r.dataset.start, e0 = +r.dataset.end;
+    r.classList.toggle('now', now >= s0 && now < e0);
+    r.classList.toggle('past', now >= e0);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🔁 5100-RECOMPUTE-PARAGRAPH.                                     */
+/*    PERFORM COMPUTE, RENDER-KEYS, RENDER-TIMELINE, TICK.             */
+/*    CALLED AFTER ANY CHANGE TO A FIELD.                              */
+/* ------------------------------------------------------------------ */
+function recompute() {
+  plan = compute();
+  renderKeys();
+  renderTimeline();
+  tick();
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 📝 6000-STEP-EDITOR-SECTION.                                     */
+/*    REBUILDS THE STEP TABLE. EACH ROW HAS A CHECKBOX, A NAME,        */
+/*    A MINUTES FIELD, AND A REMOVE BUTTON. EACH CONTROL SAVES AND     */
+/*    RECOMPUTES ON CHANGE.                                            */
+/* ------------------------------------------------------------------ */
+function renderSteps() {
+  var host = $('steps');
+  host.textContent = '';
+  state.steps.forEach(function (st, i) {
+    var row = document.createElement('div');
+    row.className = 'step' + (st.on ? '' : ' off');
+    var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = st.on; cb.id = 'sOn' + i;
+    cb.setAttribute('aria-label', 'Include step ' + (i + 1));
+    var tx = document.createElement('input'); tx.type = 'text'; tx.value = st.label; tx.id = 'sTx' + i;
+    tx.setAttribute('aria-label', 'Step ' + (i + 1) + ' name');
+    var mn = document.createElement('input'); mn.type = 'number'; mn.min = 0; mn.max = 240; mn.step = 1; mn.value = st.min; mn.id = 'sMn' + i;
+    mn.setAttribute('aria-label', 'Step ' + (i + 1) + ' minutes');
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'x'; x.textContent = '×';
+    x.setAttribute('aria-label', 'Remove step ' + (i + 1));
+    cb.addEventListener('change', function () { st.on = cb.checked; row.classList.toggle('off', !st.on); saveState(); recompute(); });
+    tx.addEventListener('input', function () { st.label = tx.value; saveState(); recompute(); });
+    mn.addEventListener('input', function () { st.min = num(mn.value, 0); saveState(); recompute(); });
+    x.addEventListener('click', function () { state.steps.splice(i, 1); saveState(); renderSteps(); recompute(); });
+    row.appendChild(cb); row.appendChild(tx); row.appendChild(mn); row.appendChild(x);
+    host.appendChild(row);
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🔄 7000-SYNC-SECTION.                                            */
+/*    7010-SYNC-INPUTS MOVES STATE INTO THE INPUT FIELDS AND SETS      */
+/*    THE PRESSED CHIP. 7020-CLEAR-PRESET UNPRESSES ALL CHIPS WHEN     */
+/*    THE USER OVERTYPES A PRESET VALUE.                               */
+/* ------------------------------------------------------------------ */
+function syncInputs() {
+  $('inLabel').value = state.label;
+  $('inDate').value = state.date;
+  $('inTime').value = state.time;
+  $('inTravel').value = state.travel;
+  $('inArrive').value = state.arrive;
+  $('inDoor').value = state.door;
+  var chips = document.querySelectorAll('#presets .chip');
+  for (var i = 0; i < chips.length; i++) chips[i].setAttribute('aria-pressed', chips[i].dataset.preset === state.preset ? 'true' : 'false');
+}
+function clearPreset() {
+  state.preset = '';
+  var chips = document.querySelectorAll('#presets .chip');
+  for (var i = 0; i < chips.length; i++) chips[i].setAttribute('aria-pressed', 'false');
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🔌 8000-WIRE-EVENTS-SECTION.                                     */
+/*    CONNECTS EACH SCREEN FIELD TO ITS HANDLER.                       */
+/*    8010 TEXT, DATE, TIME, TRAVEL, BUFFER, DOOR FIELDS.              */
+/*    8020 PRESET CHIPS LOAD A WHOLE PRESET RECORD.                    */
+/*    8030 ADD STEP APPENDS A ROW AND FOCUSES IT.                      */
+/*    8040 RESET RESTORES TRAIN DEFAULTS, 0615, DEFAULT STEPS.         */
+/* ------------------------------------------------------------------ */
+function wire() {
+  /* ## ⌨️ 8010-FIELD-HANDLERS. */
+  $('inLabel').addEventListener('input', function (e) { state.label = e.target.value; clearPreset(); saveState(); recompute(); });
+  $('inDate').addEventListener('input', function (e) { state.date = e.target.value; recompute(); });
+  $('inTime').addEventListener('input', function (e) { state.time = e.target.value; saveState(); recompute(); });
+  $('inTravel').addEventListener('input', function (e) { state.travel = num(e.target.value, 0); clearPreset(); saveState(); recompute(); });
+  $('inArrive').addEventListener('input', function (e) { state.arrive = num(e.target.value, 0); clearPreset(); saveState(); recompute(); });
+  $('inDoor').addEventListener('input', function (e) { state.door = num(e.target.value, 0); saveState(); recompute(); });
+
+  /* ## 🎯 8020-PRESET-HANDLER. */
+  $('presets').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-preset]');
+    if (!b) return;
+    var p = PRESETS[b.dataset.preset];
+    state.preset = b.dataset.preset;
+    state.label = p.label; state.travel = p.travel; state.arrive = p.arrive; state.door = p.door;
+    syncInputs(); saveState(); recompute();
+  });
+
+  /* ## ➕ 8030-ADD-STEP-HANDLER. */
+  $('addStep').addEventListener('click', function () {
+    state.steps.push({ label: 'New step', min: 5, on: true });
+    saveState(); renderSteps(); recompute();
+    var last = $('sTx' + (state.steps.length - 1));
+    if (last) { last.focus(); last.select(); }
+  });
+
+  /* ## ♻️ 8040-RESET-HANDLER. */
+  $('resetAll').addEventListener('click', function () {
+    var t = PRESETS.train;
+    state.preset = 'train'; state.label = t.label; state.travel = t.travel; state.arrive = t.arrive; state.door = t.door;
+    state.time = DEFAULT_TIME; state.date = defaultDate();
+    state.steps = DEFAULT_STEPS.map(function (s) { return { label: s.label, min: s.min, on: s.on }; });
+    syncInputs(); renderSteps(); saveState(); recompute();
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* ## 🚀 0000-MAIN-LINE. PROGRAM ENTRY POINT.                          */
+/*    PERFORM LOAD-STATE. SET DATE. SHOW TIME ZONE. SYNC INPUTS.       */
+/*    RENDER STEPS. WIRE EVENTS. RECOMPUTE. START ONE-SECOND TICKER.   */
+/* ------------------------------------------------------------------ */
+loadState();
+state.date = defaultDate();
+try { $('tzName').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || 'local'; } catch (e) { $('tzName').textContent = 'local'; }
+syncInputs();
+renderSteps();
+wire();
+recompute();
+setInterval(tick, 1000);
+
+/* ================================================================== */
+/* ## 🏁 END OF PROGRAM. OUT-THE-DOOR-PLANNER. STOP RUN.               */
+/* ================================================================== */
+</script>
+
+</body>
+</html>
